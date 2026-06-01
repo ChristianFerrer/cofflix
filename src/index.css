@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-espresso: #2a1a0f;
+  --color-coffee: #3b2415;
+  --color-mocha: #6f4e37;
+  --color-caramel: #c08552;
+  --color-latte: #d9a066;
+  --color-cream: #f5ece1;
+  --color-foam: #fbf7f1;
+  --color-mint: #2f9e7f;
+  --color-berry: #c0392b;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-foam);
+  color: var(--color-espresso);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle grain/warmth for hero sections */
+.bg-grain {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 22px 22px;
+}
