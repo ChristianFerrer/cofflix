@@ -63,25 +63,6 @@ const FAVORITES = ['Flat white', 'Cortado', 'Espresso', 'Latte', 'Cappuccino', '
 /*  Socios simulados                                                   */
 /* ------------------------------------------------------------------ */
 
-const SEED_MEMBERS: Member[] = [
-  m('Laura Vidal', 'active', 240, 24, 0, 'Flat white', 18),
-  m('Marc Soler', 'active', 180, 22, 1, 'Cortado', 6),
-  m('Núria Camps', 'active', 95, 19, 0, 'Latte', 14),
-  m('Pol Esteve', 'active', 310, 26, 2, 'Espresso', 4),
-  m('Aina Ferrer', 'active', 60, 17, 1, 'Cappuccino', 11),
-  m('Jordi Roca', 'active', 150, 20, 0, 'V60', 9),
-  m('Clara Mas', 'active', 75, 14, 3, 'Cold brew', 7),
-  m('Bruno Gil', 'active', 200, 23, 1, 'Flat white', 13),
-  m('Sara Pons', 'active', 45, 12, 2, 'Cortado', 5),
-  m('David Lluch', 'failed', 130, 9, 4, 'Latte', 3),
-  m('Helena Bosch', 'active', 88, 16, 5, 'Cappuccino', 8),
-  m('Oriol Vives', 'active', 270, 21, 0, 'Espresso', 10),
-  m('Berta Sales', 'active', 33, 7, 14, 'V60', 2), // en riesgo
-  m('Guillem Roig', 'active', 165, 18, 12, 'Cortado', 6), // en riesgo
-  m('Marta Coll', 'cancelled', 210, 0, 28, 'Latte', 9),
-  m('Ferran Pujol', 'active', 52, 11, 1, 'Cold brew', 4),
-]
-
 let _seq = 0
 function m(
   name: string,
@@ -105,6 +86,25 @@ function m(
     attachVisits,
   }
 }
+
+const SEED_MEMBERS: Member[] = [
+  m('Laura Vidal', 'active', 240, 24, 0, 'Flat white', 18),
+  m('Marc Soler', 'active', 180, 22, 1, 'Cortado', 6),
+  m('Núria Camps', 'active', 95, 19, 0, 'Latte', 14),
+  m('Pol Esteve', 'active', 310, 26, 2, 'Espresso', 4),
+  m('Aina Ferrer', 'active', 60, 17, 1, 'Cappuccino', 11),
+  m('Jordi Roca', 'active', 150, 20, 0, 'V60', 9),
+  m('Clara Mas', 'active', 75, 14, 3, 'Cold brew', 7),
+  m('Bruno Gil', 'active', 200, 23, 1, 'Flat white', 13),
+  m('Sara Pons', 'active', 45, 12, 2, 'Cortado', 5),
+  m('David Lluch', 'failed', 130, 9, 4, 'Latte', 3),
+  m('Helena Bosch', 'active', 88, 16, 5, 'Cappuccino', 8),
+  m('Oriol Vives', 'active', 270, 21, 0, 'Espresso', 10),
+  m('Berta Sales', 'active', 33, 7, 14, 'V60', 2), // en riesgo
+  m('Guillem Roig', 'active', 165, 18, 12, 'Cortado', 6), // en riesgo
+  m('Marta Coll', 'cancelled', 210, 0, 28, 'Latte', 9),
+  m('Ferran Pujol', 'active', 52, 11, 1, 'Cold brew', 4),
+]
 
 /* Datos históricos para los gráficos del panel */
 const REDEMPTIONS_LAST_7 = [42, 51, 39, 58, 61, 47, 0] // el último día (hoy) es en vivo
