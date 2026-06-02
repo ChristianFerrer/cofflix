@@ -1,7 +1,35 @@
 import { Link, useLocation } from 'react-router-dom'
 import type { ComponentType, ReactNode } from 'react'
-import { Coffee, Receipt, UserPlus, Smartphone, ChartNoAxesColumn, RotateCcw } from 'lucide-react'
+import {
+  Coffee,
+  Receipt,
+  UserPlus,
+  Smartphone,
+  ChartNoAxesColumn,
+  RotateCcw,
+  Croissant,
+  Cookie,
+  Sandwich,
+  CakeSlice,
+  CupSoda,
+  ShoppingBag,
+} from 'lucide-react'
 import { useStore } from '../store'
+
+type IconType = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+
+const PRODUCT_ICONS: Record<string, IconType> = {
+  'Croissant artesano': Croissant,
+  'Tostada con tomate': Sandwich,
+  'Muffin de arándanos': CakeSlice,
+  'Cookie de avena': Cookie,
+  'Zumo de naranja natural': CupSoda,
+  'Bocadillo de jamón': Sandwich,
+}
+
+export function productIcon(name: string): IconType {
+  return PRODUCT_ICONS[name] ?? ShoppingBag
+}
 
 /* ------------------------------------------------------------------ */
 /*  Botones                                                            */

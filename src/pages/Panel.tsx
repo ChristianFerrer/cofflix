@@ -3,7 +3,7 @@ import {
   BadgeEuro,
   Coffee,
   ShoppingBag,
-  TriangleAlert,
+  UserMinus,
   ShieldCheck,
   Send,
   Check,
@@ -27,7 +27,7 @@ export default function Panel() {
         <Stat icon={BadgeEuro} label="Ingreso recurrente" value={eur(mx.mrrClub)} sub={`${mx.activeCount} socios activos`} accent="mint" />
         <Stat icon={Coffee} label="Cafés hoy" value={mx.redemptionsToday} sub={`${mx.monthRedemptions} este mes`} accent="lime" />
         <Stat icon={ShoppingBag} label="Compran extra" value={`${mx.attachRate}%`} sub="bollería al pedir café" accent="iris" />
-        <Stat icon={TriangleAlert} label="Pagos pendientes" value={mx.failedCount} sub="socios a recuperar" accent="rose" />
+        <Stat icon={UserMinus} label="Riesgos de fuga" value={mx.atRisk.length} sub="socios sin pasar +10 días" accent="rose" />
       </div>
 
       {/* Ajustes del club */}
@@ -105,8 +105,8 @@ export default function Panel() {
 
       {/* Gráficos */}
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <BarChart title="Cafés servidos · últimos 7 días" data={mx.last7} labels={['L', 'M', 'X', 'J', 'V', 'S', 'Hoy']} accent="var(--color-lime)" />
-        <BarChart title="Socios del club · últimas 6 semanas" data={mx.growth} labels={['s1', 's2', 's3', 's4', 's5', 's6']} accent="var(--color-iris)" />
+        <LineChart title="Cafés servidos · últimos 7 días" data={mx.last7} labels={['L', 'M', 'X', 'J', 'V', 'S', 'Hoy']} accent="var(--color-lime)" />
+        <LineChart title="Socios del club · últimas 6 semanas" data={mx.growth} labels={['s1', 's2', 's3', 's4', 's5', 's6']} accent="var(--color-iris)" />
       </div>
 
       {/* Lo más popular */}
@@ -124,23 +124,46 @@ export default function Panel() {
   )
 }
 
-function BarChart({ title, data, labels, accent }: { title: string; data: number[]; labels: string[]; accent: string }) {
+function LineChart({ title, data, labels, accent }: { title: string; data: number[]; labels: string[]; accent: string }) {
   const max = Math.max(1, ...data)
+  const n = data.length
+  const pts = data.map((v, i) => ({
+    x: n > 1 ? (i / (n - 1)) * 100 : 50,
+    y: 100 - 8 - (v / max) * 84,
+    v,
+  }))
+  const line = pts.map((p) => `${p.x},${p.y}`).join(' ')
+  const area = `0,100 ${line} 100,100`
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="text-sm font-semibold text-snow">{title}</div>
-      <div className="mt-5 flex items-end justify-between gap-2.5">
-        {data.map((v, i) => (
-          <div key={i} className="flex flex-1 flex-col items-center">
-            <div className="text-xs font-medium text-fog">{v}</div>
-            <div className="mt-1.5 flex h-28 w-full items-end">
-              <div
-                className="w-full rounded-t-lg transition-all duration-700"
-                style={{ height: `${(v / max) * 100}%`, backgroundColor: accent, minHeight: 4 }}
-              />
-            </div>
-            <div className="mt-2 text-xs text-mist">{labels[i]}</div>
+      <div className="relative mt-5 h-28">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full overflow-visible">
+          <polygon points={area} fill={accent} fillOpacity={0.1} />
+          <polyline
+            points={line}
+            fill="none"
+            stroke={accent}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+        {/* Puntos y valores (overlay HTML para no deformarse) */}
+        {pts.map((p, i) => (
+          <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
+            <div
+              className={`h-2 w-2 rounded-full ring-2 ring-surface ${i === n - 1 ? 'ring-2' : ''}`}
+              style={{ backgroundColor: accent }}
+            />
+            <div className="absolute left-1/2 -top-4 -translate-x-1/2 text-[10px] font-medium text-fog">{p.v}</div>
           </div>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-between">
+        {labels.map((l, i) => (
+          <span key={i} className="text-xs text-mist">{l}</span>
         ))}
       </div>
     </div>

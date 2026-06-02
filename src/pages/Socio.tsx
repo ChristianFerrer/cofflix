@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Coffee, Plus, Clock, Phone, ShoppingBag, Check, CircleCheck, Bell } from 'lucide-react'
-import { DemoShell, btn, eur } from '../components/ui'
+import { Coffee, Plus, Minus, Clock, Phone, ShoppingBag, CircleCheck, Bell } from 'lucide-react'
+import { DemoShell, btn, eur, productIcon } from '../components/ui'
 import { useStore, ORDER_FLOW, type Order, type OrderItem } from '../store'
 
 const ETAS = ['Ahora', 'En 10 min', 'En 20 min']
@@ -15,30 +15,36 @@ export default function Socio() {
   const remaining = Math.max(0, config.capPerDay - (redeemedToday[me.id] ?? 0))
   const [includeCoffee, setIncludeCoffee] = useState(true)
   const [drink, setDrink] = useState(me.favorite)
-  const [extras, setExtras] = useState<string[]>([])
+  const [extraQty, setExtraQty] = useState<Record<string, number>>({})
   const [eta, setEta] = useState(ETAS[1])
   const [justSent, setJustSent] = useState(false)
 
   const myOrders = orders.filter((o) => o.memberId === me.id)
   const readyOrders = myOrders.filter((o) => o.status === 'ready')
+  const hasExtras = Object.values(extraQty).some((q) => q > 0)
 
   const coffeeCharged = includeCoffee && remaining <= 0
   const total = useMemo(() => {
-    const extrasSum = extras.reduce((a, id) => a + (products.find((p) => p.id === id)?.price ?? 0), 0)
+    const extrasSum = products.reduce((a, p) => a + p.price * (extraQty[p.id] ?? 0), 0)
     return extrasSum + (coffeeCharged ? config.retailPrice : 0)
-  }, [extras, products, coffeeCharged, config.retailPrice])
+  }, [extraQty, products, coffeeCharged, config.retailPrice])
 
-  function toggleExtra(id: string) {
-    setExtras((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  function setQty(id: string, delta: number) {
+    setExtraQty((prev) => {
+      const next = { ...prev }
+      const q = (next[id] ?? 0) + delta
+      if (q <= 0) delete next[id]
+      else next[id] = q
+      return next
+    })
   }
 
   function send() {
-    const items: OrderItem[] = extras.map((id) => {
-      const p = products.find((x) => x.id === id)!
-      return { name: p.name, price: p.price }
-    })
+    const items: OrderItem[] = products
+      .filter((p) => (extraQty[p.id] ?? 0) > 0)
+      .map((p) => ({ name: p.name, price: p.price, qty: extraQty[p.id] }))
     placeOrder(me.id, includeCoffee ? drink : null, items, eta)
-    setExtras([])
+    setExtraQty({})
     setJustSent(true)
     setTimeout(() => setJustSent(false), 3000)
   }
@@ -164,26 +170,52 @@ export default function Socio() {
           </div>
           <div className="mt-3 space-y-2">
             {products.map((p) => {
-              const on = extras.includes(p.id)
+              const Icon = productIcon(p.name)
+              const q = extraQty[p.id] ?? 0
               return (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => toggleExtra(p.id)}
-                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition ${
-                    on ? 'border-lime/40 bg-lime/5' : 'border-line bg-surface2 hover:border-line2'
+                  className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition ${
+                    q > 0 ? 'border-lime/40 bg-lime/5' : 'border-line bg-surface2'
                   }`}
                 >
-                  <div>
-                    <div className="text-sm font-medium text-snow">{p.name}</div>
-                    <div className="text-xs text-mist">{p.tag}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-snow">{eur(p.price, 2)}</span>
-                    <span className={`grid h-6 w-6 place-items-center rounded-full ${on ? 'bg-lime text-ink' : 'bg-carbon text-fog'}`}>
-                      {on ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-carbon text-fog">
+                      <Icon size={16} strokeWidth={2} />
                     </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-snow">{p.name}</div>
+                      <div className="text-xs text-mist">{p.tag} · {eur(p.price, 2)}</div>
+                    </div>
                   </div>
-                </button>
+                  {q > 0 ? (
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        onClick={() => setQty(p.id, -1)}
+                        className="grid h-7 w-7 place-items-center rounded-full border border-line text-snow transition hover:bg-surface"
+                        aria-label="Quitar uno"
+                      >
+                        <Minus size={14} strokeWidth={2.5} />
+                      </button>
+                      <span className="w-4 text-center text-sm font-semibold text-snow">{q}</span>
+                      <button
+                        onClick={() => setQty(p.id, 1)}
+                        className="grid h-7 w-7 place-items-center rounded-full bg-lime text-ink transition hover:bg-lime-deep"
+                        aria-label="Añadir uno"
+                      >
+                        <Plus size={14} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setQty(p.id, 1)}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-carbon text-fog transition hover:text-snow"
+                      aria-label="Añadir"
+                    >
+                      <Plus size={15} strokeWidth={2.5} />
+                    </button>
+                  )}
+                </div>
               )
             })}
           </div>
@@ -214,7 +246,7 @@ export default function Socio() {
             </div>
             <button
               onClick={send}
-              disabled={!includeCoffee && extras.length === 0}
+              disabled={!includeCoffee && !hasExtras}
               className={`${btn('primary')} disabled:cursor-not-allowed disabled:opacity-40`}
             >
               Enviar pedido
@@ -249,15 +281,35 @@ function OrderProgress({ order }: { order: Order }) {
   return (
     <div className={`rounded-xl border bg-surface2 p-3.5 ${order.status === 'ready' ? 'border-amber/40' : 'border-line'}`}>
       <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-snow">
-          {order.includedDrink ?? 'Pedido'}
-          {order.extras.length > 0 && (
-            <span className="text-fog"> · +{order.extras.length} extra{order.extras.length > 1 ? 's' : ''}</span>
-          )}
-        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-mist">Pedido</span>
         <span className="flex items-center gap-1 text-xs text-mist">
           <Clock size={12} /> {order.eta}
         </span>
+      </div>
+      <div className="mt-2 space-y-1.5 text-sm">
+        {order.includedDrink && (
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2 text-snow">
+              <Coffee size={14} className="shrink-0 text-fog" />
+              <span className="truncate">{order.includedDrink}</span>
+              <span className="text-xs text-mist">×1</span>
+            </span>
+            <span className="shrink-0 text-xs font-semibold text-lime">incluido</span>
+          </div>
+        )}
+        {order.extras.map((e, i) => {
+          const Icon = productIcon(e.name)
+          return (
+            <div key={i} className="flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-snow">
+                <Icon size={14} className="shrink-0 text-fog" />
+                <span className="truncate">{e.name}</span>
+                <span className="text-xs text-mist">×{e.qty}</span>
+              </span>
+              <span className="shrink-0 font-semibold text-amber">{eur(e.price * e.qty, 2)}</span>
+            </div>
+          )
+        })}
       </div>
       <div className="mt-3 grid grid-cols-4 gap-1.5">
         {ORDER_FLOW.map((s, i) => {

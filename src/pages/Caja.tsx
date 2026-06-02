@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight } from 'lucide-react'
-import { DemoShell, eur } from '../components/ui'
+import { DemoShell, eur, productIcon } from '../components/ui'
 import { useStore, ORDER_FLOW, ORDER_LABEL, type Member, type Order, type VerifyResult } from '../store'
 
 export default function Caja() {
@@ -143,7 +143,7 @@ function OrderStepper({ status }: { status: Order['status'] }) {
 }
 
 function OrderCard({ order, onAdvance }: { order: Order; onAdvance: () => void }) {
-  const extrasTotal = order.extras.reduce((a, e) => a + e.price, 0)
+  const extrasTotal = order.extras.reduce((a, e) => a + e.price * e.qty, 0)
   const free = extrasTotal === 0
   const ready = order.status === 'ready'
   const statusColor =
@@ -163,19 +163,30 @@ function OrderCard({ order, onAdvance }: { order: Order; onAdvance: () => void }
       <OrderStepper status={order.status} />
       <div className={`mt-1.5 text-xs font-semibold ${statusColor}`}>{ORDER_LABEL[order.status]}</div>
 
-      <div className="mt-2.5 space-y-1 text-sm">
+      <div className="mt-2.5 space-y-1.5 text-sm">
         {order.includedDrink && (
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-snow"><Coffee size={13} className="text-lime" /> {order.includedDrink}</span>
-            <span className="text-xs font-semibold text-lime">incluido</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2 text-snow">
+              <Coffee size={15} className="shrink-0 text-fog" />
+              <span className="truncate">{order.includedDrink}</span>
+              <span className="text-xs text-mist">×1</span>
+            </span>
+            <span className="shrink-0 text-xs font-semibold text-lime">incluido</span>
           </div>
         )}
-        {order.extras.map((e, i) => (
-          <div key={i} className="flex items-center justify-between text-fog">
-            <span>{e.name}</span>
-            <span>{eur(e.price, 2)}</span>
-          </div>
-        ))}
+        {order.extras.map((e, i) => {
+          const Icon = productIcon(e.name)
+          return (
+            <div key={i} className="flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-snow">
+                <Icon size={15} className="shrink-0 text-fog" />
+                <span className="truncate">{e.name}</span>
+                <span className="text-xs text-mist">×{e.qty}</span>
+              </span>
+              <span className="shrink-0 font-semibold text-amber">{eur(e.price * e.qty, 2)}</span>
+            </div>
+          )
+        })}
       </div>
 
       <div className="mt-3 flex items-center justify-between border-t border-line pt-3">

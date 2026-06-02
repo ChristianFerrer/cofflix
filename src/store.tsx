@@ -36,6 +36,7 @@ export interface Product {
 export interface OrderItem {
   name: string
   price: number
+  qty: number
 }
 
 export type OrderStatus = 'queued' | 'preparing' | 'ready' | 'delivered'
@@ -175,8 +176,8 @@ function seedOrder(
 
 const SEED_ORDERS: Order[] = [
   seedOrder('o2', 'm7', 'Cold brew', [], 1, 'Ahora', 'ready'),
-  seedOrder('o1', 'm5', 'Cappuccino', [{ name: 'Croissant artesano', price: 2.2 }], 4, 'En 10 min', 'preparing'),
-  seedOrder('o3', 'm8', 'Flat white', [{ name: 'Muffin de arándanos', price: 2.8 }, { name: 'Zumo de naranja natural', price: 3.2 }], 7, 'En 20 min', 'queued'),
+  seedOrder('o1', 'm5', 'Cappuccino', [{ name: 'Croissant artesano', price: 2.2, qty: 2 }], 4, 'En 10 min', 'preparing'),
+  seedOrder('o3', 'm8', 'Flat white', [{ name: 'Muffin de arándanos', price: 2.8, qty: 1 }, { name: 'Zumo de naranja natural', price: 3.2, qty: 1 }], 7, 'En 20 min', 'queued'),
 ]
 
 /* Datos históricos para los gráficos del panel */
@@ -223,7 +224,7 @@ interface Store {
 
 const StoreContext = createContext<Store | null>(null)
 
-const LS_KEY = 'coffeeme-demo-v2'
+const LS_KEY = 'coffeeme-demo-v3'
 
 interface Persisted {
   members: Member[]
@@ -435,7 +436,7 @@ export function useMetrics() {
 
     // Extra más pedido: base mensual + pedidos en vivo
     const extraTally: Record<string, number> = { ...MONTH_EXTRAS_BASE }
-    orders.forEach((o) => o.extras.forEach((e) => (extraTally[e.name] = (extraTally[e.name] ?? 0) + 1)))
+    orders.forEach((o) => o.extras.forEach((e) => (extraTally[e.name] = (extraTally[e.name] ?? 0) + e.qty)))
     const topExtraEntry = Object.entries(extraTally).sort((a, b) => b[1] - a[1])[0] ?? ['—', 0]
     const topExtra = { name: topExtraEntry[0], count: topExtraEntry[1] }
 
