@@ -86,16 +86,16 @@ export default function LandingB2B() {
               <Badge>Para cafés de especialidad</Badge>
             </div>
             <h1 className="animate-fade-up delay-1 mt-6 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight text-snow sm:text-6xl">
-              Tus clientes de siempre,{' '}
-              <span className="text-gradient">socios que pagan por adelantado.</span>
+              Crea la suscripción de tu café y gana{' '}
+              <span className="text-gradient">clientes que vuelven cada día.</span>
             </h1>
             <p className="animate-fade-up delay-2 mt-6 max-w-xl text-lg text-fog">
-              Coffee Me es el club de café que llena tus horas muertas y fideliza a tus regulares. Sin
-              papeleo y sin perder margen. Tú solo sirves café.
+              100 socios = <strong className="text-snow">{eur(100 * clubPrice)} fijos cada mes</strong>, vengan o
+              no a por su café. La montamos por ti en una semana — tú solo sirves café.
             </p>
             <div className="animate-fade-up delay-3 mt-9 flex flex-wrap gap-3">
               <Link to="/demo" className={btn('primary', 'lg')}>
-                Ver la demo en 2 min <ArrowRight size={18} strokeWidth={2.2} />
+                Monta mi suscripción <ArrowRight size={18} strokeWidth={2.2} />
               </Link>
               <Link to="/club" className={btn('outline', 'lg')}>
                 Ver el club del cliente
