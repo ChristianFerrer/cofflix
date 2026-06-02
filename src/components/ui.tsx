@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import type { ComponentType, ReactNode } from 'react'
-import { Coffee, Receipt, UserPlus, ChartNoAxesColumn, RotateCcw } from 'lucide-react'
+import { Coffee, Receipt, UserPlus, Smartphone, ChartNoAxesColumn, RotateCcw } from 'lucide-react'
 import { useStore } from '../store'
 
 /* ------------------------------------------------------------------ */
@@ -77,7 +77,8 @@ export function DemoShell({ title, subtitle, children }: { title: string; subtit
   const loc = useLocation()
   const tabs = [
     { to: '/demo/caja', label: 'Caja', icon: Receipt },
-    { to: '/demo/alta', label: 'Alta socio', icon: UserPlus },
+    { to: '/demo/alta', label: 'Alta', icon: UserPlus },
+    { to: '/demo/socio', label: 'App socio', icon: Smartphone },
     { to: '/demo/panel', label: 'Panel', icon: ChartNoAxesColumn },
   ]
   return (

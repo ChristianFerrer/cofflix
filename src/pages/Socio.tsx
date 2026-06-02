@@ -1,0 +1,246 @@
+import { useMemo, useState } from 'react'
+import { Coffee, Plus, Clock, Phone, ShoppingBag, Check, CircleCheck } from 'lucide-react'
+import { DemoShell, btn, eur } from '../components/ui'
+import { useStore, type OrderItem } from '../store'
+
+const ETAS = ['Ahora', 'En 10 min', 'En 20 min']
+
+export default function Socio() {
+  const { config, members, products, favorites, currentMemberId, setCurrentMember, redeemedToday, placeOrder, orders } =
+    useStore()
+
+  const activeMembers = members.filter((x) => x.status === 'active')
+  const me = members.find((x) => x.id === currentMemberId) ?? activeMembers[0]
+
+  const remaining = Math.max(0, config.capPerDay - (redeemedToday[me.id] ?? 0))
+  const [includeCoffee, setIncludeCoffee] = useState(true)
+  const [drink, setDrink] = useState(me.favorite)
+  const [extras, setExtras] = useState<string[]>([])
+  const [eta, setEta] = useState(ETAS[1])
+  const [justSent, setJustSent] = useState(false)
+
+  const myOrders = orders.filter((o) => o.memberId === me.id)
+
+  const coffeeCharged = includeCoffee && remaining <= 0
+  const total = useMemo(() => {
+    const extrasSum = extras.reduce((a, id) => a + (products.find((p) => p.id === id)?.price ?? 0), 0)
+    return extrasSum + (coffeeCharged ? config.retailPrice : 0)
+  }, [extras, products, coffeeCharged, config.retailPrice])
+
+  function toggleExtra(id: string) {
+    setExtras((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  }
+
+  function send() {
+    const items: OrderItem[] = extras.map((id) => {
+      const p = products.find((x) => x.id === id)!
+      return { name: p.name, price: p.price }
+    })
+    placeOrder(me.id, includeCoffee ? drink : null, items, eta)
+    setExtras([])
+    setJustSent(true)
+    setTimeout(() => setJustSent(false), 3000)
+  }
+
+  return (
+    <DemoShell title="App del socio" subtitle="Lo que ve tu cliente en el móvil: pide y recoge sin cola.">
+      {/* Selector de "sesión" para la demo */}
+      <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-fog">
+        <span className="text-mist">Ver como:</span>
+        <select
+          value={me.id}
+          onChange={(e) => setCurrentMember(e.target.value)}
+          className="rounded-full border border-line bg-surface2 px-3 py-1.5 text-snow outline-none focus:border-lime/50"
+        >
+          {activeMembers.map((x) => (
+            <option key={x.id} value={x.id} className="bg-surface2">
+              {x.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Marco tipo móvil */}
+      <div className="mx-auto max-w-md space-y-4">
+        {/* Cabecera socio */}
+        <div className="rounded-3xl border border-line bg-glow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-lime">Club {config.cafeName}</div>
+              <div className="mt-1 font-display text-2xl font-semibold text-snow">Hola, {me.name.split(' ')[0]}</div>
+            </div>
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-lime text-ink">
+              <Coffee size={22} strokeWidth={2.2} />
+            </span>
+          </div>
+          <div className="mt-4 flex items-center gap-2 text-sm text-fog">
+            <Phone size={14} className="text-mist" /> {me.phone}
+            <span className="text-mist">· te identifica en la barra</span>
+          </div>
+          <div
+            className={`mt-4 flex items-center gap-3 rounded-2xl border p-4 ${
+              remaining > 0 ? 'border-lime/30 bg-lime/5' : 'border-line bg-surface2'
+            }`}
+          >
+            <span className={`grid h-10 w-10 place-items-center rounded-xl ${remaining > 0 ? 'bg-lime text-ink' : 'bg-carbon text-mist'}`}>
+              <Coffee size={20} strokeWidth={2.2} />
+            </span>
+            <div>
+              {remaining > 0 ? (
+                <>
+                  <div className="font-semibold text-snow">Tienes 1 café incluido hoy</div>
+                  <div className="text-xs text-fog">Se reinicia cada día. Pídelo abajo o en la barra.</div>
+                </>
+              ) : (
+                <>
+                  <div className="font-semibold text-snow">Ya disfrutaste tu café de hoy</div>
+                  <div className="text-xs text-fog">Vuelve mañana — o pide uno extra ahora.</div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Constructor de pedido */}
+        <div className="rounded-3xl border border-line bg-surface p-6">
+          <h3 className="font-display text-lg font-semibold text-snow">Pide y recoge sin cola</h3>
+
+          {/* Café */}
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-snow">Tu café</span>
+            <button
+              onClick={() => setIncludeCoffee((v) => !v)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                includeCoffee ? 'bg-lime text-ink' : 'border border-line text-fog hover:text-snow'
+              }`}
+            >
+              {includeCoffee ? 'Añadido' : 'Añadir'}
+            </button>
+          </div>
+          {includeCoffee && (
+            <>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {favorites.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setDrink(f)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      drink === f ? 'bg-snow text-ink' : 'border border-line text-fog hover:border-line2 hover:text-snow'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-2 text-xs">
+                {coffeeCharged ? (
+                  <span className="text-fog">Hoy ya usaste tu café incluido — este se cobra a {eur(config.retailPrice, 2)}.</span>
+                ) : (
+                  <span className="font-semibold text-lime">Incluido en tu membresía · €0</span>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Extras */}
+          <div className="mt-6 flex items-center gap-2 text-sm font-medium text-snow">
+            <ShoppingBag size={15} className="text-iris" /> Añade algo más
+          </div>
+          <div className="mt-3 space-y-2">
+            {products.map((p) => {
+              const on = extras.includes(p.id)
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => toggleExtra(p.id)}
+                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition ${
+                    on ? 'border-lime/40 bg-lime/5' : 'border-line bg-surface2 hover:border-line2'
+                  }`}
+                >
+                  <div>
+                    <div className="text-sm font-medium text-snow">{p.name}</div>
+                    <div className="text-xs text-mist">{p.tag}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-snow">{eur(p.price, 2)}</span>
+                    <span className={`grid h-6 w-6 place-items-center rounded-full ${on ? 'bg-lime text-ink' : 'bg-carbon text-fog'}`}>
+                      {on ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* ETA */}
+          <div className="mt-6 flex items-center gap-2 text-sm font-medium text-snow">
+            <Clock size={15} className="text-fog" /> ¿Cuándo lo recoges?
+          </div>
+          <div className="mt-3 flex gap-2">
+            {ETAS.map((e) => (
+              <button
+                key={e}
+                onClick={() => setEta(e)}
+                className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                  eta === e ? 'bg-snow text-ink' : 'border border-line text-fog hover:text-snow'
+                }`}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+
+          {/* Total + enviar */}
+          <div className="mt-6 flex items-center justify-between border-t border-line pt-4">
+            <div className="text-sm text-fog">
+              A pagar al recoger
+              <div className="font-display text-xl font-semibold text-snow">{eur(total, 2)}</div>
+            </div>
+            <button
+              onClick={send}
+              disabled={!includeCoffee && extras.length === 0}
+              className={`${btn('primary')} disabled:cursor-not-allowed disabled:opacity-40`}
+            >
+              Enviar pedido
+            </button>
+          </div>
+          {justSent && (
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-mint">
+              <CircleCheck size={16} /> Pedido enviado · lo verás abajo y en la barra
+            </div>
+          )}
+        </div>
+
+        {/* Mis pedidos */}
+        <div className="rounded-3xl border border-line bg-surface p-6">
+          <h3 className="font-display text-lg font-semibold text-snow">Mis pedidos</h3>
+          {myOrders.length === 0 && <p className="mt-2 text-sm text-fog">Aún no has hecho ningún pedido.</p>}
+          <div className="mt-3 space-y-2">
+            {myOrders.map((o) => (
+              <div key={o.id} className="rounded-xl border border-line bg-surface2 px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-snow">
+                    {o.includedDrink ?? 'Pedido'}
+                    {o.extras.length > 0 && <span className="text-fog"> · +{o.extras.length} extra{o.extras.length > 1 ? 's' : ''}</span>}
+                  </div>
+                  {o.status === 'delivered' ? (
+                    <span className="flex items-center gap-1 text-xs font-semibold text-mint">
+                      <Check size={13} strokeWidth={2.5} /> Entregado
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 rounded-full bg-iris/10 px-2 py-0.5 text-xs font-semibold text-iris">
+                      <Clock size={12} /> {o.eta}
+                    </span>
+                  )}
+                </div>
+                {o.extras.length > 0 && (
+                  <div className="mt-1 text-xs text-mist">{o.extras.map((e) => e.name).join(' · ')}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DemoShell>
+  )
+}

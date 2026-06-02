@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Coffee, Croissant, Star, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react'
+import { Coffee, Croissant, Star, Smartphone, ArrowLeft, ArrowRight } from 'lucide-react'
 import { Logo, Badge, btn, eur } from '../components/ui'
 import { useStore } from '../store'
 
@@ -11,7 +11,7 @@ export default function LandingClub() {
     { icon: Coffee, title: 'Tu café diario', text: 'Un café de especialidad cada día, incluido en tu membresía.' },
     { icon: Croissant, title: 'Un capricho semanal', text: `Cada semana, ${config.perk}.` },
     { icon: Star, title: 'Trato de socio', text: 'Acceso a cafés de origen reservados y a lo nuevo antes que nadie.' },
-    { icon: Sparkles, title: 'Sin complicaciones', text: 'Enseñas tu nombre en la barra y listo. Sin tarjetas que sellar.' },
+    { icon: Smartphone, title: 'Pide y recoge sin cola', text: 'Pide tu café y algo de comer desde el móvil y recógelo al llegar.' },
   ]
 
   return (

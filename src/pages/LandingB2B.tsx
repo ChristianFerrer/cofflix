@@ -13,6 +13,7 @@ import {
   Coffee,
 } from 'lucide-react'
 import { SiteNav, Logo, Badge, btn, eur } from '../components/ui'
+import { useStore } from '../store'
 
 const STEPS = [
   {
@@ -66,8 +67,12 @@ const PRICE_FEATURES = [
 ]
 
 export default function LandingB2B() {
-  const clubPrice = 30
-  const saas = 69
+  const { config } = useStore()
+  const clubPrice = config.clubPrice
+  const saas = config.saasPrice
+  const breakeven = Math.round(clubPrice / config.cogs)
+  const exampleMrr = 30 * clubPrice
+  const share = Math.round((saas / exampleMrr) * 100)
 
   return (
     <div className="bg-carbon">
@@ -216,8 +221,9 @@ export default function LandingB2B() {
               </div>
               <p className="mt-4 text-fog">
                 A {eur(clubPrice)}/mes con café incluido, cada socio puede tomar unos{' '}
-                <strong className="text-snow">71 cafés</strong> antes de que pierdas dinero. Suena
-                imposible de cruzar… hasta que alguien se toma 3 al día o pasa el código a su pareja.
+                <strong className="text-snow">{breakeven} cafés</strong> antes de que pierdas dinero.
+                Suena imposible de cruzar… hasta que alguien se toma 3 al día o pasa el código a su
+                pareja.
               </p>
               <div className="mt-7 space-y-3">
                 <div className="flex items-center justify-between rounded-2xl border border-line bg-carbon px-4 py-3.5">
@@ -280,8 +286,8 @@ export default function LandingB2B() {
                 ))}
               </ul>
               <div className="mt-6 rounded-2xl border border-line bg-carbon px-4 py-3.5 text-sm text-snow">
-                30 socios × {eur(clubPrice)} = <strong>{eur(900)}/mes recurrentes</strong>. Coffee Prime es
-                el ~8% de eso.
+                30 socios × {eur(clubPrice)} = <strong>{eur(exampleMrr)}/mes recurrentes</strong>.
+                Coffee Prime es el ~{share}% de eso.
               </div>
               <Link to="/demo" className={`${btn('primary', 'lg')} mt-6 w-full`}>
                 Ver la demo <ArrowRight size={18} strokeWidth={2.2} />

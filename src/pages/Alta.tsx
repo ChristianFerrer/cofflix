@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { CircleCheck, ScanLine, ArrowRight, UserPlus } from 'lucide-react'
+import { CircleCheck, ScanLine, UserPlus, Smartphone } from 'lucide-react'
 import { DemoShell, btn, eur } from '../components/ui'
 import { useStore } from '../store'
 
 export default function Alta() {
   const { config, addMember, favorites } = useStore()
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [favorite, setFavorite] = useState(favorites[0])
   const [done, setDone] = useState<string | null>(null)
 
@@ -19,11 +19,11 @@ export default function Alta() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
-    addMember(name, email || `${name.toLowerCase().replace(/[^a-z]+/g, '.')}@email.com`, favorite)
+    if (!name.trim() || !phone.trim()) return
+    addMember(name, phone, favorite)
     setDone(name.trim())
     setName('')
-    setEmail('')
+    setPhone('')
   }
 
   const inputCls =
@@ -46,15 +46,15 @@ export default function Alta() {
             Cobro de {eur(config.clubPrice)}/mes activado · 1 café/día incluido · {config.perk}
           </div>
           <div className="mt-6 flex flex-col gap-2.5">
-            <button onClick={() => setDone(null)} className={btn('primary')}>
-              <UserPlus size={17} strokeWidth={2.2} /> Dar de alta a otro socio
-            </button>
-            <Link
-              to="/demo/caja"
+            <Link to="/demo/socio" className={btn('primary')}>
+              <Smartphone size={17} strokeWidth={2.2} /> Abrir mi app de socio
+            </Link>
+            <button
+              onClick={() => setDone(null)}
               className="flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-fog transition hover:text-snow"
             >
-              Ver cómo aparece en caja <ArrowRight size={15} strokeWidth={2.2} />
-            </Link>
+              <UserPlus size={15} strokeWidth={2.2} /> Dar de alta a otro socio
+            </button>
           </div>
         </div>
       </DemoShell>
@@ -92,8 +92,14 @@ export default function Alta() {
           </label>
 
           <label className="mt-4 block text-sm font-medium text-snow">
-            Email <span className="font-normal text-mist">(opcional)</span>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" className={inputCls} />
+            Teléfono <span className="font-normal text-mist">· te identifica en la barra</span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="600 000 000"
+              className={inputCls}
+            />
           </label>
 
           <label className="mt-4 block text-sm font-medium text-snow">

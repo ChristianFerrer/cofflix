@@ -8,6 +8,7 @@ import LandingClub from './pages/LandingClub'
 import DemoHub from './pages/DemoHub'
 import Caja from './pages/Caja'
 import Alta from './pages/Alta'
+import Socio from './pages/Socio'
 import Panel from './pages/Panel'
 
 createRoot(document.getElementById('root')!).render(
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/demo" element={<DemoHub />} />
           <Route path="/demo/caja" element={<Caja />} />
           <Route path="/demo/alta" element={<Alta />} />
+          <Route path="/demo/socio" element={<Socio />} />
           <Route path="/demo/panel" element={<Panel />} />
         </Routes>
       </HashRouter>

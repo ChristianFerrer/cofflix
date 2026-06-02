@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Receipt, UserPlus, ChartNoAxesColumn, ArrowLeft, ArrowRight, Lightbulb } from 'lucide-react'
+import { Receipt, UserPlus, Smartphone, ChartNoAxesColumn, ArrowLeft, ArrowRight, Lightbulb } from 'lucide-react'
 import { Logo, Badge } from '../components/ui'
 import { useStore } from '../store'
 
@@ -14,7 +14,13 @@ const CARDS = [
     to: '/demo/alta',
     icon: UserPlus,
     title: 'Alta de socio',
-    text: 'El cliente escanea un QR, se apunta y paga en menos de un minuto. Sin apps.',
+    text: 'El cliente escanea un QR, se apunta con su teléfono y paga en menos de un minuto.',
+  },
+  {
+    to: '/demo/socio',
+    icon: Smartphone,
+    title: 'App del socio',
+    text: 'El cliente pide su café (y bollería) para recoger sin cola, desde el móvil.',
   },
   {
     to: '/demo/panel',
@@ -47,7 +53,7 @@ export default function DemoHub() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {CARDS.map((c, i) => {
             const Icon = c.icon
             return (
