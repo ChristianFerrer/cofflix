@@ -1,31 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  /* Marrones — más profundidad y control de contraste */
-  --color-ink: #1b110a;
-  --color-espresso: #2c1c11;
-  --color-coffee: #3f2817;
-  --color-mocha: #7c5c46;
-  --color-clay: #a9886d;
-  --color-caramel: #b56a35;
-  --color-latte: #e2b783;
-  --color-sand: #ecdfce;
-  --color-cream: #f3e9db;
-  --color-foam: #faf6ef;
-  --color-paper: #ffffff;
+  /* Lienzo y superficies (modo oscuro carbón) */
+  --color-ink: #0a0b0d;
+  --color-carbon: #0e0f12;
+  --color-surface: #16181d;
+  --color-surface2: #1d2027;
+  --color-line: #2a2e36;
+  --color-line2: #3a3f49;
 
-  /* Acentos semánticos */
-  --color-mint: #2c9576;
-  --color-mint-soft: #e4f1ec;
-  --color-berry: #bb3b2c;
-  --color-berry-soft: #f7e7e4;
-  --color-gold: #d99a4e;
+  /* Texto */
+  --color-snow: #f4f5f2;
+  --color-fog: #a2a8b2;
+  --color-mist: #6c727c;
+
+  /* Acentos */
+  --color-lime: #c6f24e;
+  --color-lime-deep: #a9da2f;
+  --color-iris: #8b8bff;
+
+  /* Semánticos (brillantes para fondo oscuro) */
+  --color-mint: #34d399;
+  --color-mint-soft: #112a23;
+  --color-rose: #fb7185;
+  --color-rose-soft: #2a1419;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
 
-  --shadow-soft: 0 1px 2px rgba(43, 28, 17, 0.04), 0 8px 24px -12px rgba(43, 28, 17, 0.12);
-  --shadow-lift: 0 2px 4px rgba(43, 28, 17, 0.05), 0 24px 48px -24px rgba(43, 28, 17, 0.28);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4), 0 32px 64px -28px rgba(0, 0, 0, 0.8);
+  --shadow-lime: 0 10px 40px -12px rgba(198, 242, 78, 0.4);
 }
 
 html {
@@ -34,32 +39,39 @@ html {
 
 body {
   margin: 0;
-  background: var(--color-foam);
-  color: var(--color-ink);
+  background: var(--color-carbon);
+  color: var(--color-snow);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Display serif: optical sizing para titulares */
 .font-display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
-/* Textura sutil de grano para fondos oscuros */
+/* Grano sutil para fondos */
 .bg-grain {
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.035) 1px, transparent 0);
   background-size: 22px 22px;
 }
 
-/* Degradado cálido para héroes */
-.bg-warm {
+/* Resplandor lima para héroes */
+.bg-glow {
   background:
-    radial-gradient(120% 120% at 85% 0%, rgba(226, 183, 131, 0.18) 0%, transparent 45%),
-    linear-gradient(165deg, #3f2817 0%, #2c1c11 60%, #1b110a 100%);
+    radial-gradient(80% 60% at 80% -10%, rgba(198, 242, 78, 0.16) 0%, transparent 55%),
+    radial-gradient(70% 60% at 0% 110%, rgba(139, 139, 255, 0.12) 0%, transparent 55%),
+    var(--color-carbon);
+}
+
+/* Texto con degradado lima→iris */
+.text-gradient {
+  background: linear-gradient(100deg, var(--color-lime) 0%, #e8ff9b 50%, var(--color-iris) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Animaciones de entrada */
@@ -71,12 +83,8 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.animate-fade-up {
-  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.animate-fade-in {
-  animation: fadeIn 0.6s ease both;
-}
+.animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in { animation: fadeIn 0.6s ease both; }
 .delay-1 { animation-delay: 0.08s; }
 .delay-2 { animation-delay: 0.16s; }
 .delay-3 { animation-delay: 0.24s; }
@@ -87,16 +95,15 @@ body {
   html { scroll-behavior: auto; }
 }
 
-/* Scrollbar discreta y cálida */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-sand) transparent;
+  scrollbar-color: var(--color-line2) transparent;
 }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: var(--color-sand); border-radius: 9999px; }
+*::-webkit-scrollbar-thumb { background: var(--color-line2); border-radius: 9999px; }
 *::-webkit-scrollbar-track { background: transparent; }
 
 ::selection {
-  background: var(--color-latte);
-  color: var(--color-espresso);
+  background: var(--color-lime);
+  color: var(--color-ink);
 }

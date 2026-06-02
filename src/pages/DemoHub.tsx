@@ -27,10 +27,10 @@ const CARDS = [
 export default function DemoHub() {
   const { config } = useStore()
   return (
-    <div className="min-h-screen bg-foam">
+    <div className="min-h-screen bg-glow">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
         <Logo />
-        <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-mocha transition hover:text-espresso">
+        <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-fog transition hover:text-snow">
           <ArrowLeft size={16} /> Volver a la web
         </Link>
       </header>
@@ -38,10 +38,10 @@ export default function DemoHub() {
       <main className="mx-auto max-w-5xl px-6 py-10">
         <div className="max-w-2xl animate-fade-up">
           <Badge>Demo interactiva · datos de ejemplo</Badge>
-          <h1 className="mt-5 font-display text-3xl font-semibold leading-tight text-espresso sm:text-[2.75rem]">
+          <h1 className="mt-5 font-display text-3xl font-semibold leading-tight text-snow sm:text-[2.75rem]">
             Así funciona Cofflix en {config.cafeName}.
           </h1>
-          <p className="mt-4 text-mocha">
+          <p className="mt-4 text-fog">
             Tres pantallas, una para cada momento: la barra, el alta del cliente y el control del
             negocio. Todo con datos simulados — toca, prueba y, si te lías, pulsa «Reiniciar».
           </p>
@@ -54,14 +54,14 @@ export default function DemoHub() {
               <Link
                 key={c.to}
                 to={c.to}
-                className={`group animate-fade-up delay-${i + 1} rounded-3xl border border-sand/70 bg-paper p-7 shadow-soft transition hover:-translate-y-1 hover:shadow-lift`}
+                className={`group animate-fade-up delay-${i + 1} rounded-3xl border border-line bg-surface p-7 transition hover:-translate-y-1 hover:border-lime/40`}
               >
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-coffee text-latte transition group-hover:bg-espresso">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-surface2 text-lime transition group-hover:bg-lime group-hover:text-ink">
                   <Icon size={22} strokeWidth={2} />
                 </span>
-                <h3 className="mt-5 font-display text-xl font-semibold text-espresso">{c.title}</h3>
-                <p className="mt-2 text-sm text-mocha">{c.text}</p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-caramel transition group-hover:gap-2.5">
+                <h3 className="mt-5 font-display text-xl font-semibold text-snow">{c.title}</h3>
+                <p className="mt-2 text-sm text-fog">{c.text}</p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-lime transition group-hover:gap-2.5">
                   Abrir <ArrowRight size={16} strokeWidth={2.2} />
                 </span>
               </Link>
@@ -69,11 +69,11 @@ export default function DemoHub() {
           })}
         </div>
 
-        <div className="mt-10 flex items-start gap-3 rounded-2xl border border-sand/70 bg-cream/60 p-5 text-sm text-mocha">
-          <Lightbulb size={20} className="mt-0.5 shrink-0 text-caramel" />
+        <div className="mt-10 flex items-start gap-3 rounded-2xl border border-line bg-surface p-5 text-sm text-fog">
+          <Lightbulb size={20} className="mt-0.5 shrink-0 text-lime" />
           <p>
-            <strong className="text-espresso">Para la presentación:</strong> empieza por la pantalla
-            de caja (toca un socio para ver el verde/rojo y el tope), luego da de alta a alguien en
+            <strong className="text-snow">Para la presentación:</strong> empieza por la pantalla de
+            caja (toca un socio para ver el verde/rojo y el tope), luego da de alta a alguien en
             «Alta de socio» y comprueba cómo aparece al instante en la caja y en el panel.
           </p>
         </div>

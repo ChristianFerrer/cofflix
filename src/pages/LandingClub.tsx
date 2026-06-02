@@ -15,25 +15,25 @@ export default function LandingClub() {
   ]
 
   return (
-    <div className="min-h-screen bg-foam">
+    <div className="min-h-screen bg-carbon">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
         <Logo />
-        <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-mocha transition hover:text-espresso">
+        <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-fog transition hover:text-snow">
           <ArrowLeft size={16} /> Volver
         </Link>
       </header>
 
       {/* HERO */}
-      <section className="mx-auto max-w-5xl px-6 pb-16 pt-10">
-        <div className="grid items-center gap-12 md:grid-cols-2">
+      <section className="relative overflow-hidden bg-glow">
+        <div className="mx-auto grid max-w-5xl items-center gap-12 px-6 pb-16 pt-10 md:grid-cols-2">
           <div>
             <div className="animate-fade-up">
               <Badge>Plazas de fundador · {config.cafeName}</Badge>
             </div>
-            <h1 className="animate-fade-up delay-1 mt-6 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight text-espresso sm:text-6xl">
-              Tu café de cada día, <span className="text-caramel">y algo más.</span>
+            <h1 className="animate-fade-up delay-1 mt-6 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight text-snow sm:text-6xl">
+              Tu café de cada día, <span className="text-gradient">y algo más.</span>
             </h1>
-            <p className="animate-fade-up delay-2 mt-6 text-lg text-mocha">
+            <p className="animate-fade-up delay-2 mt-6 text-lg text-fog">
               Únete al club de {config.cafeName}. Tu café diario, un capricho cada semana y trato de
               socio — por menos de lo que cuesta un café al día.
             </p>
@@ -41,8 +41,8 @@ export default function LandingClub() {
               <Link to="/demo/alta" className={btn('primary', 'lg')}>
                 Quiero ser socio <ArrowRight size={18} strokeWidth={2.2} />
               </Link>
-              <div className="text-sm text-mocha">
-                <div className="font-display text-2xl font-semibold text-espresso">
+              <div className="text-sm text-fog">
+                <div className="font-display text-2xl font-semibold text-snow">
                   {eur(config.clubPrice)}/mes
                 </div>
                 <div>≈ {eur(perDay, 2)} al día</div>
@@ -52,26 +52,26 @@ export default function LandingClub() {
 
           {/* Tarjeta de socio */}
           <div className="animate-fade-in delay-2 relative mx-auto w-full max-w-sm">
-            <div className="absolute -inset-5 rounded-[2.5rem] bg-caramel/10 blur-2xl" />
-            <div className="relative aspect-[1.6/1] overflow-hidden rounded-[1.75rem] bg-warm bg-grain p-7 text-cream shadow-lift">
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-lime/10 blur-3xl" />
+            <div className="relative aspect-[1.6/1] overflow-hidden rounded-[1.75rem] border border-line bg-surface bg-grain p-7 shadow-lift">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-latte">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-lime">
                   Club {config.cafeName}
                 </span>
-                <Coffee size={22} className="text-latte" />
+                <Coffee size={22} className="text-lime" />
               </div>
               <div className="mt-9">
-                <div className="text-xs uppercase tracking-wide text-cream/50">Socio fundador</div>
-                <div className="mt-1 font-display text-2xl font-semibold">Tu nombre aquí</div>
+                <div className="text-xs uppercase tracking-wide text-mist">Socio fundador</div>
+                <div className="mt-1 font-display text-2xl font-semibold text-snow">Tu nombre aquí</div>
               </div>
               <div className="mt-7 flex items-end justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-cream/50">Incluye</div>
-                  <div className="font-semibold">1 café / día</div>
+                  <div className="text-[11px] uppercase tracking-wide text-mist">Incluye</div>
+                  <div className="font-semibold text-snow">1 café / día</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[11px] uppercase tracking-wide text-cream/50">Desde</div>
-                  <div className="font-semibold">{eur(perDay, 2)}/día</div>
+                  <div className="text-[11px] uppercase tracking-wide text-mist">Desde</div>
+                  <div className="font-semibold text-lime">{eur(perDay, 2)}/día</div>
                 </div>
               </div>
             </div>
@@ -80,16 +80,16 @@ export default function LandingClub() {
       </section>
 
       {/* PERKS */}
-      <section className="mx-auto max-w-5xl px-6 py-12">
+      <section className="mx-auto max-w-5xl px-6 py-16">
         <div className="grid gap-5 sm:grid-cols-2">
           {perks.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex items-start gap-4 rounded-2xl border border-sand/70 bg-paper p-6 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cream text-caramel">
+            <div key={title} className="flex items-start gap-4 rounded-2xl border border-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-lime/40">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-surface2 text-lime">
                 <Icon size={22} strokeWidth={2} />
               </span>
               <div>
-                <h3 className="font-display text-lg font-semibold text-espresso">{title}</h3>
-                <p className="mt-1 text-sm text-mocha">{text}</p>
+                <h3 className="font-display text-lg font-semibold text-snow">{title}</h3>
+                <p className="mt-1 text-sm text-fog">{text}</p>
               </div>
             </div>
           ))}
@@ -97,12 +97,12 @@ export default function LandingClub() {
       </section>
 
       {/* VALOR */}
-      <section className="mx-auto max-w-3xl px-6 py-12">
-        <div className="rounded-3xl border border-sand/70 bg-cream/60 p-8 text-center sm:p-10">
-          <h2 className="font-display text-2xl font-semibold text-espresso sm:text-3xl">
+      <section className="mx-auto max-w-3xl px-6 py-8">
+        <div className="rounded-3xl border border-line bg-surface p-8 text-center sm:p-10">
+          <h2 className="font-display text-2xl font-semibold text-snow sm:text-3xl">
             ¿Te sale a cuenta?
           </h2>
-          <p className="mx-auto mt-3 max-w-lg text-mocha">
+          <p className="mx-auto mt-3 max-w-lg text-fog">
             Si pasas por aquí 4 o 5 días a la semana, ya lo amortizas. Y no es solo el café: es no
             pensar, no pagar cada vez y sentirte de casa.
           </p>
@@ -112,11 +112,11 @@ export default function LandingClub() {
               [eur(config.clubPrice), 'cuota fija'],
               [eur(perDay, 2), 'por día', true],
             ].map(([v, l, hl]) => (
-              <div key={l as string} className="rounded-2xl border border-sand/60 bg-paper p-5 shadow-soft">
-                <div className={`font-display text-2xl font-semibold ${hl ? 'text-mint' : 'text-espresso'}`}>
+              <div key={l as string} className="rounded-2xl border border-line bg-carbon p-5">
+                <div className={`font-display text-2xl font-semibold ${hl ? 'text-lime' : 'text-snow'}`}>
                   {v}
                 </div>
-                <div className="mt-1 text-xs text-mocha">{l}</div>
+                <div className="mt-1 text-xs text-fog">{l}</div>
               </div>
             ))}
           </div>
@@ -125,10 +125,10 @@ export default function LandingClub() {
 
       {/* CTA */}
       <section className="mx-auto max-w-3xl px-6 pb-24 pt-8 text-center">
-        <h2 className="font-display text-3xl font-semibold text-espresso sm:text-4xl">
+        <h2 className="font-display text-3xl font-semibold text-snow sm:text-4xl">
           Hazte socio en 1 minuto.
         </h2>
-        <p className="mt-3 text-mocha">
+        <p className="mt-3 text-fog">
           Escanea, paga y la próxima vez solo das tu nombre en la barra.
         </p>
         <Link to="/demo/alta" className={`${btn('primary', 'lg')} mt-8`}>
@@ -136,7 +136,7 @@ export default function LandingClub() {
         </Link>
       </section>
 
-      <footer className="bg-ink py-10 text-center text-sm text-cream/45">
+      <footer className="border-t border-line bg-ink py-10 text-center text-sm text-mist">
         Club {config.cafeName} · con tecnología de Cofflix
       </footer>
     </div>

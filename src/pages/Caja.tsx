@@ -29,14 +29,14 @@ export default function Caja() {
     <DemoShell title="Caja" subtitle="Verifica al socio y aplica el tope diario en 2 segundos.">
       <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
         {/* Lista de socios */}
-        <div className="rounded-2xl border border-sand/70 bg-paper p-4 shadow-soft">
+        <div className="rounded-2xl border border-line bg-surface p-4">
           <div className="relative">
-            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-clay" />
+            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-mist" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar socio por nombre…"
-              className="w-full rounded-xl border border-sand bg-foam py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-caramel focus:ring-2 focus:ring-caramel/20"
+              className="w-full rounded-xl border border-line bg-surface2 py-2.5 pl-10 pr-4 text-sm text-snow placeholder:text-mist outline-none transition focus:border-lime/50 focus:ring-2 focus:ring-lime/20"
             />
           </div>
           <div className="mt-3 max-h-[26rem] space-y-1 overflow-y-auto pr-1">
@@ -53,7 +53,7 @@ export default function Caja() {
               />
             ))}
             {filtered.length === 0 && (
-              <div className="py-8 text-center text-sm text-mocha">Sin resultados.</div>
+              <div className="py-8 text-center text-sm text-fog">Sin resultados.</div>
             )}
           </div>
         </div>
@@ -61,9 +61,9 @@ export default function Caja() {
         {/* Panel de verificación */}
         <div>
           {!selected || !result ? (
-            <div className="grid h-full min-h-[20rem] place-items-center rounded-2xl border-2 border-dashed border-sand bg-paper/40 p-8 text-center text-mocha">
+            <div className="grid h-full min-h-[20rem] place-items-center rounded-2xl border-2 border-dashed border-line bg-surface/40 p-8 text-center text-fog">
               <div>
-                <MousePointerClick size={32} className="mx-auto text-clay" />
+                <MousePointerClick size={32} className="mx-auto text-mist" />
                 <p className="mt-3 max-w-xs text-sm">
                   Selecciona un socio de la lista para ver su estado en caja.
                 </p>
@@ -75,9 +75,10 @@ export default function Caja() {
         </div>
       </div>
 
-      <p className="mt-5 text-center text-xs text-mocha">
-        Prueba: <strong>Marc Soler</strong> y <strong>Pol Esteve</strong> ya tomaron su café hoy ·{' '}
-        <strong>David Lluch</strong> tiene un pago pendiente · <strong>Marta Coll</strong> canceló.
+      <p className="mt-5 text-center text-xs text-mist">
+        Prueba: <strong className="text-fog">Marc Soler</strong> y <strong className="text-fog">Pol Esteve</strong> ya
+        tomaron su café hoy · <strong className="text-fog">David Lluch</strong> tiene un pago
+        pendiente · <strong className="text-fog">Marta Coll</strong> canceló.
       </p>
     </DemoShell>
   )
@@ -96,22 +97,22 @@ function MemberRow({
 }) {
   const dot =
     member.status === 'cancelled'
-      ? 'bg-clay'
+      ? 'bg-mist'
       : member.status === 'failed'
-        ? 'bg-berry'
+        ? 'bg-rose'
         : usedToday > 0
-          ? 'bg-gold'
+          ? 'bg-iris'
           : 'bg-mint'
   return (
     <button
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-        active ? 'bg-coffee text-cream shadow-soft' : 'hover:bg-cream'
+        active ? 'bg-lime text-ink' : 'text-snow hover:bg-surface2'
       }`}
     >
       <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
       <span className="flex-1 truncate text-sm font-medium">{member.name}</span>
-      <span className={`text-xs ${active ? 'text-cream/70' : 'text-mocha'}`}>{member.favorite}</span>
+      <span className={`text-xs ${active ? 'text-ink/60' : 'text-mist'}`}>{member.favorite}</span>
     </button>
   )
 }
@@ -131,25 +132,25 @@ function VerifyCard({
   return (
     <div
       key={member.id}
-      className={`animate-fade-in overflow-hidden rounded-2xl border shadow-soft ${
-        ok ? 'border-mint/30 bg-mint-soft' : 'border-berry/20 bg-berry-soft'
+      className={`animate-fade-in overflow-hidden rounded-2xl border ${
+        ok ? 'border-mint/30 bg-mint-soft' : 'border-rose/30 bg-rose-soft'
       }`}
     >
-      <div className={`px-6 py-7 text-center text-white ${ok ? 'bg-mint' : 'bg-berry'}`}>
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white/20">
+      <div className={`px-6 py-7 text-center text-ink ${ok ? 'bg-mint' : 'bg-rose'}`}>
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-ink/15">
           {ok ? <Check size={30} strokeWidth={3} /> : <X size={30} strokeWidth={3} />}
         </div>
         <div className="mt-3 font-display text-xl font-semibold">{result.title}</div>
-        <div className="mx-auto mt-1 max-w-xs text-sm text-white/90">{result.detail}</div>
+        <div className="mx-auto mt-1 max-w-xs text-sm text-ink/75">{result.detail}</div>
       </div>
 
       <div className="space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-display text-lg font-semibold text-espresso">{member.name}</div>
-            <div className="text-sm text-mocha">Habitual: {member.favorite}</div>
+            <div className="font-display text-lg font-semibold text-snow">{member.name}</div>
+            <div className="text-sm text-fog">Habitual: {member.favorite}</div>
           </div>
-          <div className="text-right text-sm text-mocha">
+          <div className="text-right text-sm text-fog">
             <div>{member.monthRedemptions} cafés este mes</div>
             <div>socio desde hace {Math.max(1, Math.round(member.joinedDaysAgo / 30))} meses</div>
           </div>
@@ -158,12 +159,12 @@ function VerifyCard({
         {ok ? (
           <button
             onClick={onRedeem}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-coffee py-3.5 font-semibold text-cream transition hover:bg-espresso active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-lime py-3.5 font-semibold text-ink transition hover:bg-lime-deep active:scale-[0.99]"
           >
             <Coffee size={18} strokeWidth={2.2} /> Registrar café incluido
           </button>
         ) : (
-          <div className="rounded-xl border border-berry/20 bg-paper px-4 py-3 text-center text-sm font-medium text-berry">
+          <div className="rounded-xl border border-rose/30 bg-surface px-4 py-3 text-center text-sm font-medium text-rose">
             Cobra este café a precio normal — no descuenta del club.
           </div>
         )}
@@ -172,7 +173,7 @@ function VerifyCard({
       {flash && (
         <div
           className={`flex items-center justify-center gap-2 px-6 pb-5 text-center text-sm font-semibold ${
-            flash.ok ? 'text-mint' : 'text-berry'
+            flash.ok ? 'text-mint' : 'text-rose'
           }`}
         >
           {flash.ok ? (
