@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package } from 'lucide-react'
+import { Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight } from 'lucide-react'
 import { DemoShell, eur } from '../components/ui'
-import { useStore, type Member, type Order, type VerifyResult } from '../store'
+import { useStore, ORDER_FLOW, ORDER_LABEL, type Member, type Order, type VerifyResult } from '../store'
 
 export default function Caja() {
-  const { members, orders, verify, redeem, redeemedToday, deliverOrder } = useStore()
+  const { members, orders, verify, redeem, redeemedToday, advanceOrder } = useStore()
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [flash, setFlash] = useState<VerifyResult | null>(null)
@@ -22,8 +22,8 @@ export default function Caja() {
     return list.slice(0, 40)
   }, [members, query])
 
-  const pending = orders
-    .filter((o) => o.status === 'pending')
+  const active = orders
+    .filter((o) => o.status !== 'delivered')
     .sort((a, b) => etaMinutes(a.eta) - etaMinutes(b.eta) || b.placedAgoMin - a.placedAgoMin)
   const selected = members.find((m) => m.id === selectedId) ?? null
   const result = selected ? verify(selected.id) : null
@@ -43,14 +43,14 @@ export default function Caja() {
           <div className="flex items-center gap-2 text-sm font-semibold text-snow">
             <Package size={16} className="text-iris" /> Pedidos para recoger
           </div>
-          <span className="rounded-full bg-iris/10 px-2 py-0.5 text-xs font-semibold text-iris">{pending.length}</span>
+          <span className="rounded-full bg-iris/10 px-2 py-0.5 text-xs font-semibold text-iris">{active.length}</span>
         </div>
-        {pending.length === 0 ? (
-          <p className="mt-3 text-sm text-fog">No hay pedidos pendientes.</p>
+        {active.length === 0 ? (
+          <p className="mt-3 text-sm text-fog">No hay pedidos en marcha.</p>
         ) : (
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {pending.map((o) => (
-              <OrderCard key={o.id} order={o} onDeliver={() => deliverOrder(o.id)} />
+            {active.map((o) => (
+              <OrderCard key={o.id} order={o} onAdvance={() => advanceOrder(o.id)} />
             ))}
           </div>
         )}
@@ -115,11 +115,41 @@ function etaMinutes(eta: string) {
   return match ? parseInt(match[0], 10) : 99
 }
 
-function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }) {
+const NEXT_ACTION: Record<string, string> = {
+  queued: 'Empezar',
+  preparing: 'Marcar listo',
+  ready: 'Entregar',
+}
+
+function OrderStepper({ status }: { status: Order['status'] }) {
+  const current = ORDER_FLOW.indexOf(status)
+  return (
+    <div className="mt-3 flex items-center gap-1">
+      {ORDER_FLOW.map((s, i) => {
+        const done = i <= current
+        const isCurrent = i === current
+        return (
+          <div key={s} className="flex flex-1 items-center gap-1">
+            <span
+              className={`h-1.5 flex-1 rounded-full transition ${
+                done ? (s === 'ready' ? 'bg-amber' : s === 'delivered' ? 'bg-mint' : 'bg-lime') : 'bg-line2'
+              } ${isCurrent ? 'animate-pulse' : ''}`}
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function OrderCard({ order, onAdvance }: { order: Order; onAdvance: () => void }) {
   const extrasTotal = order.extras.reduce((a, e) => a + e.price, 0)
   const free = extrasTotal === 0
+  const ready = order.status === 'ready'
+  const statusColor =
+    order.status === 'ready' ? 'text-amber' : order.status === 'preparing' ? 'text-lime' : 'text-fog'
   return (
-    <div className={`rounded-xl border bg-surface2 p-3.5 ${free ? 'border-mint/40 ring-1 ring-mint/20' : 'border-line'}`}>
+    <div className={`rounded-xl border bg-surface2 p-3.5 ${ready ? 'border-amber/40 ring-1 ring-amber/20' : 'border-line'}`}>
       <div className="flex items-start justify-between">
         <div>
           <div className="text-sm font-semibold text-snow">{order.memberName}</div>
@@ -129,6 +159,10 @@ function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }
           <Clock size={11} /> {order.eta}
         </span>
       </div>
+
+      <OrderStepper status={order.status} />
+      <div className={`mt-1.5 text-xs font-semibold ${statusColor}`}>{ORDER_LABEL[order.status]}</div>
+
       <div className="mt-2.5 space-y-1 text-sm">
         {order.includedDrink && (
           <div className="flex items-center justify-between">
@@ -143,6 +177,7 @@ function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }
           </div>
         ))}
       </div>
+
       <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
         {free ? (
           <span className="flex items-center gap-1.5 rounded-lg bg-mint/15 px-2.5 py-1.5 font-display text-base font-semibold text-mint">
@@ -155,10 +190,10 @@ function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }
           </div>
         )}
         <button
-          onClick={onDeliver}
+          onClick={onAdvance}
           className="flex items-center gap-1.5 rounded-full bg-lime px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-lime-deep active:scale-95"
         >
-          <Check size={13} strokeWidth={2.5} /> Entregar
+          {NEXT_ACTION[order.status]} <ChevronRight size={14} strokeWidth={2.5} />
         </button>
       </div>
     </div>

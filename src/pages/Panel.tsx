@@ -10,12 +10,13 @@ import {
   Crown,
   Users,
   Croissant,
+  SlidersHorizontal,
 } from 'lucide-react'
 import { DemoShell, Stat, eur } from '../components/ui'
 import { useStore, useMetrics, type Member } from '../store'
 
 export default function Panel() {
-  const { config } = useStore()
+  const { config, updateConfig } = useStore()
   const mx = useMetrics()
   const saasShare = mx.mrrClub ? Math.round((config.saasPrice / mx.mrrClub) * 100) : 0
 
@@ -27,6 +28,35 @@ export default function Panel() {
         <Stat icon={Coffee} label="Cafés hoy" value={mx.redemptionsToday} sub={`${mx.monthRedemptions} este mes`} accent="lime" />
         <Stat icon={ShoppingBag} label="Compran extra" value={`${mx.attachRate}%`} sub="bollería al pedir café" accent="iris" />
         <Stat icon={TriangleAlert} label="Pagos pendientes" value={mx.failedCount} sub="socios a recuperar" accent="rose" />
+      </div>
+
+      {/* Ajustes del club */}
+      <div className="mt-4 rounded-2xl border border-line bg-surface p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-snow">
+            <SlidersHorizontal size={16} className="text-lime" /> Ajustes del club
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <ChipGroup
+              label="Cuota del socio"
+              options={[15, 20, 25, 30]}
+              value={config.clubPrice}
+              onSelect={(v) => updateConfig({ clubPrice: v })}
+              format={(v) => `${v}€`}
+            />
+            <ChipGroup
+              label="Cafés incluidos / día"
+              options={[1, 2]}
+              value={config.capPerDay}
+              onSelect={(v) => updateConfig({ capPerDay: v })}
+              format={(v) => String(v)}
+            />
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-mist">
+          Cambia los valores y mira cómo se recalculan al instante el ingreso, el margen y la web del
+          club.
+        </p>
       </div>
 
       {/* Margen protegido + cuota */}
@@ -111,6 +141,39 @@ function BarChart({ title, data, labels, accent }: { title: string; data: number
             </div>
             <div className="mt-2 text-xs text-mist">{labels[i]}</div>
           </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ChipGroup({
+  label,
+  options,
+  value,
+  onSelect,
+  format,
+}: {
+  label: string
+  options: number[]
+  value: number
+  onSelect: (v: number) => void
+  format: (v: number) => string
+}) {
+  return (
+    <div>
+      <div className="text-xs text-fog">{label}</div>
+      <div className="mt-1.5 flex gap-1.5">
+        {options.map((o) => (
+          <button
+            key={o}
+            onClick={() => onSelect(o)}
+            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+              value === o ? 'bg-lime text-ink' : 'border border-line text-fog hover:text-snow'
+            }`}
+          >
+            {format(o)}
+          </button>
         ))}
       </div>
     </div>

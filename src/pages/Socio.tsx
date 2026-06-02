@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Coffee, Plus, Clock, Phone, ShoppingBag, Check, CircleCheck } from 'lucide-react'
+import { Coffee, Plus, Clock, Phone, ShoppingBag, Check, CircleCheck, Bell } from 'lucide-react'
 import { DemoShell, btn, eur } from '../components/ui'
-import { useStore, type OrderItem } from '../store'
+import { useStore, ORDER_FLOW, type Order, type OrderItem } from '../store'
 
 const ETAS = ['Ahora', 'En 10 min', 'En 20 min']
 
@@ -20,6 +20,7 @@ export default function Socio() {
   const [justSent, setJustSent] = useState(false)
 
   const myOrders = orders.filter((o) => o.memberId === me.id)
+  const readyOrders = myOrders.filter((o) => o.status === 'ready')
 
   const coffeeCharged = includeCoffee && remaining <= 0
   const total = useMemo(() => {
@@ -62,6 +63,21 @@ export default function Socio() {
 
       {/* Marco tipo móvil */}
       <div className="mx-auto max-w-md space-y-4">
+        {/* Aviso: pedido listo para recoger */}
+        {readyOrders.length > 0 && (
+          <div className="flex animate-fade-in items-center gap-3 rounded-2xl border border-amber/40 bg-amber/10 p-4">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber text-ink">
+              <Bell size={20} strokeWidth={2.2} />
+            </span>
+            <div>
+              <div className="font-semibold text-snow">¡Tu pedido está listo para recoger!</div>
+              <div className="text-xs text-fog">
+                Pásate por la barra de {config.cafeName}. Da tu teléfono si te lo piden.
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Cabecera socio */}
         <div className="rounded-3xl border border-line bg-glow p-6">
           <div className="flex items-center justify-between">
@@ -215,32 +231,51 @@ export default function Socio() {
         <div className="rounded-3xl border border-line bg-surface p-6">
           <h3 className="font-display text-lg font-semibold text-snow">Mis pedidos</h3>
           {myOrders.length === 0 && <p className="mt-2 text-sm text-fog">Aún no has hecho ningún pedido.</p>}
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-3">
             {myOrders.map((o) => (
-              <div key={o.id} className="rounded-xl border border-line bg-surface2 px-3 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-snow">
-                    {o.includedDrink ?? 'Pedido'}
-                    {o.extras.length > 0 && <span className="text-fog"> · +{o.extras.length} extra{o.extras.length > 1 ? 's' : ''}</span>}
-                  </div>
-                  {o.status === 'delivered' ? (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-mint">
-                      <Check size={13} strokeWidth={2.5} /> Entregado
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 rounded-full bg-iris/10 px-2 py-0.5 text-xs font-semibold text-iris">
-                      <Clock size={12} /> {o.eta}
-                    </span>
-                  )}
-                </div>
-                {o.extras.length > 0 && (
-                  <div className="mt-1 text-xs text-mist">{o.extras.map((e) => e.name).join(' · ')}</div>
-                )}
-              </div>
+              <OrderProgress key={o.id} order={o} />
             ))}
           </div>
         </div>
       </div>
     </DemoShell>
+  )
+}
+
+const STEP_SHORT = ['En cola', 'Preparando', 'Listo', 'Entregado']
+
+function OrderProgress({ order }: { order: Order }) {
+  const current = ORDER_FLOW.indexOf(order.status)
+  return (
+    <div className={`rounded-xl border bg-surface2 p-3.5 ${order.status === 'ready' ? 'border-amber/40' : 'border-line'}`}>
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium text-snow">
+          {order.includedDrink ?? 'Pedido'}
+          {order.extras.length > 0 && (
+            <span className="text-fog"> · +{order.extras.length} extra{order.extras.length > 1 ? 's' : ''}</span>
+          )}
+        </div>
+        <span className="flex items-center gap-1 text-xs text-mist">
+          <Clock size={12} /> {order.eta}
+        </span>
+      </div>
+      <div className="mt-3 grid grid-cols-4 gap-1.5">
+        {ORDER_FLOW.map((s, i) => {
+          const done = i <= current
+          const color = s === 'delivered' ? 'bg-mint' : s === 'ready' ? 'bg-amber' : 'bg-lime'
+          return (
+            <div key={s} className="space-y-1">
+              <div className={`h-1.5 rounded-full ${done ? color : 'bg-line2'} ${i === current ? 'animate-pulse' : ''}`} />
+              <div className={`text-[10px] leading-tight ${i === current ? 'font-semibold text-snow' : 'text-mist'}`}>
+                {STEP_SHORT[i]}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {order.status === 'ready' && (
+        <div className="mt-2.5 text-xs font-semibold text-amber">Listo para recoger · pásate por la barra</div>
+      )}
+    </div>
   )
 }

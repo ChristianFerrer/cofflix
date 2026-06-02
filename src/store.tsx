@@ -38,7 +38,16 @@ export interface OrderItem {
   price: number
 }
 
-export type OrderStatus = 'pending' | 'delivered'
+export type OrderStatus = 'queued' | 'preparing' | 'ready' | 'delivered'
+
+export const ORDER_FLOW: OrderStatus[] = ['queued', 'preparing', 'ready', 'delivered']
+
+export const ORDER_LABEL: Record<OrderStatus, string> = {
+  queued: 'En cola',
+  preparing: 'En preparación',
+  ready: 'Listo para recoger',
+  delivered: 'Entregado',
+}
 
 export interface Order {
   id: string
@@ -74,7 +83,7 @@ export interface VerifyResult {
 /*  Configuración del café (demo: café de especialidad de Barcelona)   */
 /* ------------------------------------------------------------------ */
 
-const CONFIG: CafeConfig = {
+const DEFAULT_CONFIG: CafeConfig = {
   cafeName: 'Cal Cafè',
   clubPrice: 20,
   retailPrice: 2.6,
@@ -151,15 +160,23 @@ const SEED_MEMBERS: Member[] = [
 function findSeed(id: string) {
   return SEED_MEMBERS.find((x) => x.id === id)!
 }
-function seedOrder(id: string, memberId: string, includedDrink: string | null, extras: OrderItem[], placedAgoMin: number, eta: string): Order {
+function seedOrder(
+  id: string,
+  memberId: string,
+  includedDrink: string | null,
+  extras: OrderItem[],
+  placedAgoMin: number,
+  eta: string,
+  status: OrderStatus,
+): Order {
   const mem = findSeed(memberId)
-  return { id, memberId, memberName: mem.name, phone: mem.phone, includedDrink, extras, status: 'pending', placedAgoMin, eta }
+  return { id, memberId, memberName: mem.name, phone: mem.phone, includedDrink, extras, status, placedAgoMin, eta }
 }
 
 const SEED_ORDERS: Order[] = [
-  seedOrder('o1', 'm5', 'Cappuccino', [{ name: 'Croissant artesano', price: 2.2 }], 4, 'En 10 min'),
-  seedOrder('o2', 'm7', 'Cold brew', [], 1, 'Ahora'),
-  seedOrder('o3', 'm8', 'Flat white', [{ name: 'Muffin de arándanos', price: 2.8 }, { name: 'Zumo de naranja natural', price: 3.2 }], 7, 'En 20 min'),
+  seedOrder('o2', 'm7', 'Cold brew', [], 1, 'Ahora', 'ready'),
+  seedOrder('o1', 'm5', 'Cappuccino', [{ name: 'Croissant artesano', price: 2.2 }], 4, 'En 10 min', 'preparing'),
+  seedOrder('o3', 'm8', 'Flat white', [{ name: 'Muffin de arándanos', price: 2.8 }, { name: 'Zumo de naranja natural', price: 3.2 }], 7, 'En 20 min', 'queued'),
 ]
 
 /* Datos históricos para los gráficos del panel */
@@ -194,11 +211,12 @@ interface Store {
   favorites: string[]
   currentMemberId: string
   setCurrentMember: (id: string) => void
+  updateConfig: (patch: Partial<CafeConfig>) => void
   addMember: (name: string, phone: string, favorite: string) => Member
   verify: (id: string) => VerifyResult
   redeem: (id: string) => VerifyResult
   placeOrder: (memberId: string, includedDrink: string | null, extras: OrderItem[], eta: string) => void
-  deliverOrder: (orderId: string) => void
+  advanceOrder: (orderId: string) => void
   reactivate: (id: string) => void
   resetDemo: () => void
 }
@@ -212,6 +230,7 @@ interface Persisted {
   redeemedToday: Record<string, number>
   orders: Order[]
   currentMemberId: string
+  config: CafeConfig
 }
 
 function load(): Persisted {
@@ -221,7 +240,13 @@ function load(): Persisted {
   } catch {
     /* ignore */
   }
-  return { members: SEED_MEMBERS, redeemedToday: SEED_REDEEMED_TODAY, orders: SEED_ORDERS, currentMemberId: DEFAULT_MEMBER }
+  return {
+    members: SEED_MEMBERS,
+    redeemedToday: SEED_REDEEMED_TODAY,
+    orders: SEED_ORDERS,
+    currentMemberId: DEFAULT_MEMBER,
+    config: DEFAULT_CONFIG,
+  }
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -230,10 +255,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [redeemedToday, setRedeemedToday] = useState<Record<string, number>>(initial.redeemedToday)
   const [orders, setOrders] = useState<Order[]>(initial.orders ?? SEED_ORDERS)
   const [currentMemberId, setCurrentMemberId] = useState<string>(initial.currentMemberId ?? DEFAULT_MEMBER)
+  const [config, setConfig] = useState<CafeConfig>(initial.config ?? DEFAULT_CONFIG)
 
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify({ members, redeemedToday, orders, currentMemberId }))
-  }, [members, redeemedToday, orders, currentMemberId])
+    localStorage.setItem(LS_KEY, JSON.stringify({ members, redeemedToday, orders, currentMemberId, config }))
+  }, [members, redeemedToday, orders, currentMemberId, config])
 
   const value = useMemo<Store>(() => {
     function verifyInternal(id: string): VerifyResult {
@@ -254,13 +280,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }
       const used = redeemedToday[id] ?? 0
-      const remaining = CONFIG.capPerDay - used
+      const remaining = config.capPerDay - used
       if (remaining <= 0) {
         return {
           ok: false,
           tone: 'deny',
           title: 'Ya tomó su café de hoy',
-          detail: `Tope alcanzado (${used}/${CONFIG.capPerDay}). Su próximo café incluido es mañana.`,
+          detail: `Tope alcanzado (${used}/${config.capPerDay}). Su próximo café incluido es mañana.`,
           remainingToday: 0,
         }
       }
@@ -285,7 +311,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return {
-      config: CONFIG,
+      config,
       members,
       orders,
       products: PRODUCTS,
@@ -293,6 +319,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       favorites: FAVORITES,
       currentMemberId,
       setCurrentMember: (id) => setCurrentMemberId(id),
+      updateConfig: (patch) => setConfig((prev) => ({ ...prev, ...patch })),
       verify: verifyInternal,
       addMember(name, phone, favorite) {
         _seq += 1
@@ -327,18 +354,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           phone: mem.phone,
           includedDrink,
           extras,
-          status: 'pending',
+          status: 'queued',
           placedAgoMin: 0,
           eta,
         }
         setOrders((prev) => [order, ...prev])
       },
-      deliverOrder(orderId) {
+      advanceOrder(orderId) {
         const order = orders.find((o) => o.id === orderId)
-        if (!order || order.status === 'delivered') return
-        setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'delivered' } : o)))
-        // El café incluido descuenta del tope diario (si le queda); los extras se cobran aparte.
-        if (order.includedDrink) {
+        if (!order) return
+        const idx = ORDER_FLOW.indexOf(order.status)
+        if (idx < 0 || idx >= ORDER_FLOW.length - 1) return
+        const next = ORDER_FLOW[idx + 1]
+        setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: next } : o)))
+        // Al entregar, el café incluido descuenta del tope diario; los extras se cobran aparte.
+        if (next === 'delivered' && order.includedDrink) {
           const v = verifyInternal(order.memberId)
           if (v.ok) doRedeem(order.memberId, order.extras.length > 0)
         }
@@ -352,9 +382,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setRedeemedToday(SEED_REDEEMED_TODAY)
         setOrders(SEED_ORDERS)
         setCurrentMemberId(DEFAULT_MEMBER)
+        setConfig(DEFAULT_CONFIG)
       },
     }
-  }, [members, redeemedToday, orders, currentMemberId])
+  }, [members, redeemedToday, orders, currentMemberId, config])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }
