@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Search, Check, X, Coffee, MousePointerClick } from 'lucide-react'
 import { DemoShell } from '../components/ui'
 import { useStore, type Member, type VerifyResult } from '../store'
 
@@ -25,16 +26,19 @@ export default function Caja() {
   }
 
   return (
-    <DemoShell title="Caja — verifica al socio">
+    <DemoShell title="Caja" subtitle="Verifica al socio y aplica el tope diario en 2 segundos.">
       <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
         {/* Lista de socios */}
-        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-cream">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar socio por nombre…"
-            className="w-full rounded-xl border border-cream bg-foam px-4 py-2.5 text-sm outline-none focus:border-caramel"
-          />
+        <div className="rounded-2xl border border-sand/70 bg-paper p-4 shadow-soft">
+          <div className="relative">
+            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-clay" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar socio por nombre…"
+              className="w-full rounded-xl border border-sand bg-foam py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-caramel focus:ring-2 focus:ring-caramel/20"
+            />
+          </div>
           <div className="mt-3 max-h-[26rem] space-y-1 overflow-y-auto pr-1">
             {filtered.map((m) => (
               <MemberRow
@@ -57,9 +61,9 @@ export default function Caja() {
         {/* Panel de verificación */}
         <div>
           {!selected || !result ? (
-            <div className="grid h-full min-h-[20rem] place-items-center rounded-2xl border-2 border-dashed border-cream bg-white/50 p-8 text-center text-mocha">
+            <div className="grid h-full min-h-[20rem] place-items-center rounded-2xl border-2 border-dashed border-sand bg-paper/40 p-8 text-center text-mocha">
               <div>
-                <div className="text-4xl">👈</div>
+                <MousePointerClick size={32} className="mx-auto text-clay" />
                 <p className="mt-3 max-w-xs text-sm">
                   Selecciona un socio de la lista para ver su estado en caja.
                 </p>
@@ -92,17 +96,17 @@ function MemberRow({
 }) {
   const dot =
     member.status === 'cancelled'
-      ? 'bg-mocha/40'
+      ? 'bg-clay'
       : member.status === 'failed'
         ? 'bg-berry'
         : usedToday > 0
-          ? 'bg-caramel'
+          ? 'bg-gold'
           : 'bg-mint'
   return (
     <button
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-        active ? 'bg-coffee text-cream' : 'hover:bg-cream/60'
+        active ? 'bg-coffee text-cream shadow-soft' : 'hover:bg-cream'
       }`}
     >
       <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
@@ -126,20 +130,23 @@ function VerifyCard({
   const ok = result.ok
   return (
     <div
-      className={`overflow-hidden rounded-2xl shadow-sm ring-1 transition ${
-        ok ? 'bg-mint/10 ring-mint/30' : 'bg-berry/5 ring-berry/20'
+      key={member.id}
+      className={`animate-fade-in overflow-hidden rounded-2xl border shadow-soft ${
+        ok ? 'border-mint/30 bg-mint-soft' : 'border-berry/20 bg-berry-soft'
       }`}
     >
-      <div className={`px-6 py-7 text-center text-cream ${ok ? 'bg-mint' : 'bg-berry'}`}>
-        <div className="text-5xl">{ok ? '✓' : '✕'}</div>
-        <div className="mt-2 text-xl font-bold">{result.title}</div>
-        <div className="mx-auto mt-1 max-w-xs text-sm text-cream/90">{result.detail}</div>
+      <div className={`px-6 py-7 text-center text-white ${ok ? 'bg-mint' : 'bg-berry'}`}>
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white/20">
+          {ok ? <Check size={30} strokeWidth={3} /> : <X size={30} strokeWidth={3} />}
+        </div>
+        <div className="mt-3 font-display text-xl font-semibold">{result.title}</div>
+        <div className="mx-auto mt-1 max-w-xs text-sm text-white/90">{result.detail}</div>
       </div>
 
       <div className="space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-lg font-bold text-espresso">{member.name}</div>
+            <div className="font-display text-lg font-semibold text-espresso">{member.name}</div>
             <div className="text-sm text-mocha">Habitual: {member.favorite}</div>
           </div>
           <div className="text-right text-sm text-mocha">
@@ -151,12 +158,12 @@ function VerifyCard({
         {ok ? (
           <button
             onClick={onRedeem}
-            className="w-full rounded-xl bg-coffee py-3.5 font-semibold text-cream transition hover:bg-espresso"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-coffee py-3.5 font-semibold text-cream transition hover:bg-espresso active:scale-[0.99]"
           >
-            ☕ Registrar café incluido
+            <Coffee size={18} strokeWidth={2.2} /> Registrar café incluido
           </button>
         ) : (
-          <div className="rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-berry ring-1 ring-berry/20">
+          <div className="rounded-xl border border-berry/20 bg-paper px-4 py-3 text-center text-sm font-medium text-berry">
             Cobra este café a precio normal — no descuenta del club.
           </div>
         )}
@@ -164,11 +171,19 @@ function VerifyCard({
 
       {flash && (
         <div
-          className={`px-6 pb-5 text-center text-sm font-semibold ${
+          className={`flex items-center justify-center gap-2 px-6 pb-5 text-center text-sm font-semibold ${
             flash.ok ? 'text-mint' : 'text-berry'
           }`}
         >
-          {flash.ok ? '✅ Café registrado. Margen protegido por el tope.' : '⛔ ' + flash.title}
+          {flash.ok ? (
+            <>
+              <Check size={16} strokeWidth={2.5} /> Café registrado. Margen protegido por el tope.
+            </>
+          ) : (
+            <>
+              <X size={16} strokeWidth={2.5} /> {flash.title}
+            </>
+          )}
         </div>
       )}
     </div>

@@ -1,22 +1,41 @@
 import { Link } from 'react-router-dom'
-import { SiteNav, eur } from '../components/ui'
+import {
+  ArrowRight,
+  CreditCard,
+  ScanLine,
+  ShieldCheck,
+  Check,
+  X,
+  TrendingDown,
+  Clock,
+  Database,
+  RefreshCcw,
+  Coffee,
+} from 'lucide-react'
+import { SiteNav, Logo, Badge, btn, eur } from '../components/ui'
 
 const STEPS = [
   {
-    icon: '💳',
+    icon: CreditCard,
     title: 'Cobro automático',
-    text: 'Tus socios pagan por adelantado cada mes. Nosotros gestionamos cobros, tarjetas que fallan y bajas. Tú no persigues a nadie.',
+    text: 'Tus socios pagan por adelantado cada mes. Gestionamos cobros, tarjetas que fallan y bajas. Tú no persigues a nadie.',
   },
   {
-    icon: '🟢',
+    icon: ShieldCheck,
     title: 'Control en la barra',
     text: 'En caja, tu equipo ve en 2 segundos si es socio y cuántos cafés lleva hoy. El tope diario hace imposible perder margen.',
   },
   {
-    icon: '📲',
+    icon: ScanLine,
     title: 'Alta en 60 segundos',
     text: 'El cliente escanea un QR, paga y ya es socio. Sin formularios, sin instalar apps, sin que tu equipo aprenda nada nuevo.',
   },
+]
+
+const PROBLEMS = [
+  { icon: Clock, t: 'Horas muertas', d: 'sin un motivo para que el cliente vuelva' },
+  { icon: Database, t: 'Cero datos', d: 'no sabes quién es tu mejor cliente' },
+  { icon: RefreshCcw, t: 'Sin recurrencia', d: 'cada mes empiezas otra vez de cero' },
 ]
 
 const FAQ = [
@@ -38,6 +57,14 @@ const FAQ = [
   },
 ]
 
+const PRICE_FEATURES = [
+  'Cobro recurrente y gestión de impagos',
+  'Control de socios y tope diario en caja',
+  'Alta de socios por QR, sin apps',
+  'Panel con tus métricas y clientes en riesgo',
+  'Sin comisión por venta · cancela cuando quieras',
+]
+
 export default function LandingB2B() {
   const clubPrice = 30
   const saas = 69
@@ -47,49 +74,74 @@ export default function LandingB2B() {
       <SiteNav light />
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-coffee bg-grain text-cream">
-        <div className="mx-auto max-w-6xl px-6 pb-20 pt-36 sm:pt-44">
-          <div className="max-w-2xl">
-            <span className="inline-block rounded-full bg-latte/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-latte">
-              Para cafés de especialidad
-            </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-              Convierte a tus clientes de siempre en{' '}
-              <span className="text-latte">socios que pagan por adelantado</span>.
+      <section className="relative overflow-hidden bg-warm bg-grain text-cream">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-24 pt-36 sm:pt-44 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <div className="animate-fade-up">
+              <Badge tone="dark">Para cafés de especialidad</Badge>
+            </div>
+            <h1 className="animate-fade-up delay-1 mt-6 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+              Tus clientes de siempre,{' '}
+              <span className="text-latte">socios que pagan por adelantado.</span>
             </h1>
-            <p className="mt-5 text-lg text-cream/80">
-              Cofflix te da el club de café que llena tus horas muertas y fideliza a tus regulares.
-              Sin papeleo y sin perder margen. Tú solo sirves café.
+            <p className="animate-fade-up delay-2 mt-6 max-w-xl text-lg text-cream/75">
+              Cofflix es el club de café que llena tus horas muertas y fideliza a tus regulares. Sin
+              papeleo y sin perder margen. Tú solo sirves café.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/demo"
-                className="rounded-full bg-latte px-6 py-3 font-semibold text-espresso transition hover:bg-caramel"
-              >
-                Ver la demo en 2 min →
+            <div className="animate-fade-up delay-3 mt-9 flex flex-wrap gap-3">
+              <Link to="/demo" className={btn('accent', 'lg')}>
+                Ver la demo en 2 min <ArrowRight size={18} strokeWidth={2.2} />
               </Link>
-              <Link
-                to="/club"
-                className="rounded-full border border-cream/30 px-6 py-3 font-semibold text-cream transition hover:bg-cream/10"
-              >
+              <Link to="/club" className={btn('outlineLight', 'lg')}>
                 Ver el club del cliente
               </Link>
             </div>
-            <p className="mt-6 text-sm text-cream/60">
-              Sin comisión por venta · Cuota fija de {eur(saas)}/mes · Cancela cuando quieras
+            <p className="animate-fade-up delay-4 mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-cream/55">
+              <span className="flex items-center gap-1.5"><Check size={15} /> Sin comisión por venta</span>
+              <span className="flex items-center gap-1.5"><Check size={15} /> Cuota fija {eur(saas)}/mes</span>
+              <span className="flex items-center gap-1.5"><Check size={15} /> Cancela cuando quieras</span>
             </p>
+          </div>
+
+          {/* Mockup del producto */}
+          <div className="animate-fade-in delay-3 relative mx-auto w-full max-w-sm">
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-latte/10 blur-2xl" />
+            <div className="relative rounded-[2rem] border border-cream/10 bg-espresso/60 p-3 shadow-lift backdrop-blur">
+              <div className="rounded-[1.5rem] bg-foam p-5 text-ink">
+                <div className="flex items-center justify-between text-xs text-mocha">
+                  <span className="font-semibold uppercase tracking-wide">Caja · Cal Cafè</span>
+                  <Coffee size={16} className="text-caramel" />
+                </div>
+                <div className="mt-4 rounded-2xl bg-mint px-4 py-5 text-center text-white">
+                  <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-white/20">
+                    <Check size={26} strokeWidth={3} />
+                  </div>
+                  <div className="mt-2 font-display text-lg font-semibold">Socio activo</div>
+                  <div className="text-sm text-white/85">Café incluido · le queda 1 hoy</div>
+                </div>
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-paper px-3 py-2.5 shadow-soft">
+                  <div>
+                    <div className="text-sm font-semibold text-espresso">Laura Vidal</div>
+                    <div className="text-xs text-mocha">Flat white · 24 cafés/mes</div>
+                  </div>
+                  <div className="rounded-full bg-coffee px-3 py-1.5 text-xs font-semibold text-cream">
+                    Registrar
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* PROBLEMA */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid gap-10 md:grid-cols-2 md:items-center">
+      <section className="mx-auto max-w-6xl px-6 py-24">
+        <div className="grid gap-12 md:grid-cols-2 md:items-center">
           <div>
-            <h2 className="text-3xl font-bold text-espresso">
+            <h2 className="font-display text-3xl font-semibold leading-tight text-espresso sm:text-[2.5rem]">
               Tu café es bueno. Tus ingresos, impredecibles.
             </h2>
-            <p className="mt-4 text-mocha">
+            <p className="mt-5 text-mocha">
               Conoces a tus mejores clientes de cara, pero no tienes forma de que vuelvan más a
               menudo ni de saber quiénes son. Las mañanas flojean, la competencia está a 50 metros y
               cada mes empiezas de cero.
@@ -100,79 +152,94 @@ export default function LandingB2B() {
               bien.
             </p>
           </div>
-          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-cream">
-            <div className="space-y-5">
-              {[
-                ['Horas muertas', 'sin un motivo para que el cliente venga'],
-                ['Cero datos', 'no sabes quién es tu mejor cliente'],
-                ['Sin recurrencia', 'cada mes vuelves a empezar de cero'],
-              ].map(([t, d]) => (
-                <div key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 text-berry">✕</span>
-                  <div>
-                    <div className="font-semibold text-espresso">{t}</div>
-                    <div className="text-sm text-mocha">{d}</div>
+          <div className="space-y-3">
+            {PROBLEMS.map(({ icon: Icon, t, d }) => (
+              <div key={t} className="flex items-start gap-4 rounded-2xl border border-sand/70 bg-paper p-5 shadow-soft">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-berry-soft text-berry">
+                  <Icon size={20} strokeWidth={2} />
+                </span>
+                <div>
+                  <div className="flex items-center gap-2 font-semibold text-espresso">
+                    <X size={15} className="text-berry" /> {t}
                   </div>
+                  <div className="mt-0.5 text-sm text-mocha">{d}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CÓMO FUNCIONA */}
-      <section className="bg-cream/60 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-center text-3xl font-bold text-espresso">Tres piezas. Cero fricción.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-center text-mocha">
-            No es «una app más». Es la infraestructura que hace que tu club traiga dinero sin darte
-            trabajo.
-          </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <div key={s.title} className="rounded-3xl bg-white p-7 shadow-sm ring-1 ring-cream">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cream text-2xl">
-                  {s.icon}
-                </div>
-                <div className="mt-4 text-xs font-bold uppercase tracking-wide text-caramel">
-                  Paso {i + 1}
-                </div>
-                <h3 className="mt-1 text-lg font-bold text-espresso">{s.title}</h3>
-                <p className="mt-2 text-sm text-mocha">{s.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* MARGEN GARANTIZADO */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid gap-10 md:grid-cols-2 md:items-center">
-          <div className="order-2 rounded-3xl bg-espresso p-8 text-cream md:order-1">
-            <div className="text-sm font-semibold uppercase tracking-wide text-latte">
-              El número que cambia todo
-            </div>
-            <p className="mt-3 text-cream/80">
-              A {eur(clubPrice)}/mes con café incluido, cada socio puede tomar unos{' '}
-              <strong className="text-cream">71 cafés</strong> antes de que pierdas dinero. Suena
-              imposible de cruzar… hasta que alguien se toma 3 al día o pasa el código a su pareja.
+      {/* CÓMO FUNCIONA */}
+      <section className="border-y border-sand/60 bg-cream/50 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mx-auto max-w-xl text-center">
+            <Badge>Cómo funciona</Badge>
+            <h2 className="mt-4 font-display text-3xl font-semibold text-espresso sm:text-[2.5rem]">
+              Tres piezas. Cero fricción.
+            </h2>
+            <p className="mt-4 text-mocha">
+              No es «una app más». Es la infraestructura que hace que tu club traiga dinero sin darte
+              trabajo.
             </p>
-            <div className="mt-6 rounded-2xl bg-coffee/60 p-5">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-cream/70">Sin control (libreta)</span>
-                <span className="font-bold text-berry">Fuga de margen</span>
+          </div>
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {STEPS.map((s, i) => {
+              const Icon = s.icon
+              return (
+                <div
+                  key={s.title}
+                  className="group rounded-3xl border border-sand/70 bg-paper p-7 shadow-soft transition hover:-translate-y-1 hover:shadow-lift"
+                >
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-coffee text-latte transition group-hover:bg-espresso">
+                    <Icon size={22} strokeWidth={2} />
+                  </span>
+                  <div className="mt-5 text-xs font-bold uppercase tracking-wide text-caramel">
+                    Paso {i + 1}
+                  </div>
+                  <h3 className="mt-1 font-display text-xl font-semibold text-espresso">{s.title}</h3>
+                  <p className="mt-2 text-sm text-mocha">{s.text}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* MARGEN GARANTIZADO */}
+      <section className="mx-auto max-w-6xl px-6 py-24">
+        <div className="grid gap-12 md:grid-cols-2 md:items-center">
+          <div className="order-2 md:order-1">
+            <div className="rounded-3xl bg-warm bg-grain p-8 text-cream shadow-lift">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-latte">
+                <TrendingDown size={16} /> El número que cambia todo
               </div>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="text-cream/70">Con tope de 1/día</span>
-                <span className="font-bold text-latte">Margen imposible de perder</span>
+              <p className="mt-4 text-cream/80">
+                A {eur(clubPrice)}/mes con café incluido, cada socio puede tomar unos{' '}
+                <strong className="text-cream">71 cafés</strong> antes de que pierdas dinero. Suena
+                imposible de cruzar… hasta que alguien se toma 3 al día o pasa el código a su pareja.
+              </p>
+              <div className="mt-7 space-y-3">
+                <div className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3.5">
+                  <span className="flex items-center gap-2 text-sm text-cream/70">
+                    <X size={16} className="text-berry" /> Sin control (libreta)
+                  </span>
+                  <span className="text-sm font-semibold text-[#e6907f]">Fuga de margen</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3.5">
+                  <span className="flex items-center gap-2 text-sm text-cream/70">
+                    <ShieldCheck size={16} className="text-latte" /> Con tope de 1/día
+                  </span>
+                  <span className="text-sm font-semibold text-latte">Margen blindado</span>
+                </div>
               </div>
             </div>
           </div>
           <div className="order-1 md:order-2">
-            <h2 className="text-3xl font-bold text-espresso">
+            <h2 className="font-display text-3xl font-semibold leading-tight text-espresso sm:text-[2.5rem]">
               El descuento no es el riesgo. <span className="text-caramel">La fuga sí.</span>
             </h2>
-            <p className="mt-4 text-mocha">
+            <p className="mt-5 text-mocha">
               La gracia no está en regalar café, sino en que el sistema sepa exactamente quién es
               socio y cuántos lleva hoy. Pones un tope y es matemáticamente imposible perder margen.
             </p>
@@ -185,51 +252,56 @@ export default function LandingB2B() {
       </section>
 
       {/* PRECIO */}
-      <section className="bg-cream/60 py-20">
+      <section className="border-y border-sand/60 bg-cream/50 py-24">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <h2 className="text-3xl font-bold text-espresso">Un precio. Sin sorpresas.</h2>
-          <div className="mx-auto mt-10 max-w-md rounded-3xl bg-white p-8 shadow-md ring-1 ring-cream">
-            <div className="text-sm font-semibold uppercase tracking-wide text-caramel">
-              Cuota fija mensual
+          <Badge>Precio</Badge>
+          <h2 className="mt-4 font-display text-3xl font-semibold text-espresso sm:text-[2.5rem]">
+            Un precio. Sin sorpresas.
+          </h2>
+          <div className="mx-auto mt-12 max-w-md overflow-hidden rounded-[1.75rem] border border-sand/70 bg-paper text-left shadow-lift">
+            <div className="bg-coffee bg-grain px-8 py-7 text-cream">
+              <div className="text-xs font-semibold uppercase tracking-wide text-latte">
+                Cuota fija mensual
+              </div>
+              <div className="mt-2 flex items-end gap-1.5">
+                <span className="font-display text-5xl font-semibold">{eur(saas)}</span>
+                <span className="mb-2 text-cream/70">/mes</span>
+              </div>
+              <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-mint/20 px-2.5 py-1 text-sm font-medium text-[#7fd9bd]">
+                = {eur(2.3, 2)} al día
+              </div>
             </div>
-            <div className="mt-2 flex items-end justify-center gap-1">
-              <span className="text-5xl font-extrabold text-espresso">{eur(saas)}</span>
-              <span className="mb-2 text-mocha">/mes</span>
+            <div className="px-8 py-7">
+              <ul className="space-y-3 text-sm text-mocha">
+                {PRICE_FEATURES.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5">
+                    <Check size={17} className="mt-0.5 shrink-0 text-mint" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 rounded-2xl bg-cream px-4 py-3.5 text-sm text-espresso">
+                30 socios × {eur(clubPrice)} = <strong>{eur(900)}/mes recurrentes</strong>. Cofflix es
+                el ~8% de eso.
+              </div>
+              <Link to="/demo" className={`${btn('primary', 'lg')} mt-6 w-full`}>
+                Ver la demo <ArrowRight size={18} strokeWidth={2.2} />
+              </Link>
             </div>
-            <div className="mt-1 text-sm font-medium text-mint">= {eur(2.3, 2)} al día</div>
-            <ul className="mt-6 space-y-3 text-left text-sm text-mocha">
-              {[
-                'Cobro recurrente y gestión de impagos',
-                'Control de socios y tope diario en caja',
-                'Alta de socios por QR, sin apps',
-                'Panel con tus métricas y clientes en riesgo',
-                'Sin comisión por venta. Cancela cuando quieras',
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-2">
-                  <span className="text-mint">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-7 rounded-2xl bg-cream p-4 text-sm text-espresso">
-              30 socios × {eur(clubPrice)} ={' '}
-              <strong>{eur(900)}/mes recurrentes</strong>. Cofflix es el ~8% de eso.
-            </div>
-            <Link
-              to="/demo"
-              className="mt-6 block rounded-full bg-coffee px-6 py-3 font-semibold text-cream transition hover:bg-espresso"
-            >
-              Ver la demo
-            </Link>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-6 py-20">
-        <h2 className="text-center text-3xl font-bold text-espresso">Lo que nos preguntan</h2>
-        <div className="mt-10 space-y-4">
+      <section className="mx-auto max-w-3xl px-6 py-24">
+        <div className="text-center">
+          <Badge>Dudas frecuentes</Badge>
+          <h2 className="mt-4 font-display text-3xl font-semibold text-espresso sm:text-[2.5rem]">
+            Lo que nos preguntan
+          </h2>
+        </div>
+        <div className="mt-12 space-y-4">
           {FAQ.map((f) => (
-            <div key={f.q} className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-cream">
+            <div key={f.q} className="rounded-2xl border border-sand/70 bg-paper p-6 shadow-soft">
               <div className="font-semibold text-espresso">{f.q}</div>
               <p className="mt-2 text-sm text-mocha">{f.a}</p>
             </div>
@@ -238,32 +310,31 @@ export default function LandingB2B() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="bg-coffee bg-grain py-20 text-center text-cream">
+      <section className="bg-warm bg-grain py-24 text-center text-cream">
         <div className="mx-auto max-w-2xl px-6">
-          <h2 className="text-3xl font-bold sm:text-4xl">Pruébalo sin arriesgar un euro.</h2>
-          <p className="mt-4 text-cream/80">
+          <h2 className="font-display text-3xl font-semibold sm:text-[2.75rem]">
+            Pruébalo sin arriesgar un euro.
+          </h2>
+          <p className="mt-5 text-cream/75">
             Lanzamos juntos el club con tus 20 mejores clientes. Si en una semana no consiguen
             apuntarse 15, lo dejamos y no nos debes nada.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/demo"
-              className="rounded-full bg-latte px-6 py-3 font-semibold text-espresso transition hover:bg-caramel"
-            >
-              Ver la demo
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Link to="/demo" className={btn('accent', 'lg')}>
+              Ver la demo <ArrowRight size={18} strokeWidth={2.2} />
             </Link>
-            <a
-              href="mailto:hola@cofflix.app"
-              className="rounded-full border border-cream/30 px-6 py-3 font-semibold text-cream transition hover:bg-cream/10"
-            >
+            <a href="mailto:hola@cofflix.app" className={btn('outlineLight', 'lg')}>
               Hablar con nosotros
             </a>
           </div>
         </div>
       </section>
 
-      <footer className="bg-espresso py-8 text-center text-sm text-cream/50">
-        Cofflix · El club de café para tus mejores clientes · Barcelona
+      <footer className="bg-ink py-10 text-center text-sm text-cream/45">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6">
+          <Logo light />
+          <p>El club de café para tus mejores clientes · Barcelona</p>
+        </div>
       </footer>
     </div>
   )
