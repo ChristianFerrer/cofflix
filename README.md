@@ -1,4 +1,4 @@
-# Cofflix
+# Coffee Prime
 
 Infraestructura de **clubs de café por membresía** para cafés de especialidad.
 

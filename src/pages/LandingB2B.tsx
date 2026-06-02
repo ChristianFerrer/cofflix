@@ -85,7 +85,7 @@ export default function LandingB2B() {
               <span className="text-gradient">socios que pagan por adelantado.</span>
             </h1>
             <p className="animate-fade-up delay-2 mt-6 max-w-xl text-lg text-fog">
-              Cofflix es el club de café que llena tus horas muertas y fideliza a tus regulares. Sin
+              Coffee Prime es el club de café que llena tus horas muertas y fideliza a tus regulares. Sin
               papeleo y sin perder margen. Tú solo sirves café.
             </p>
             <div className="animate-fade-up delay-3 mt-9 flex flex-wrap gap-3">
@@ -280,7 +280,7 @@ export default function LandingB2B() {
                 ))}
               </ul>
               <div className="mt-6 rounded-2xl border border-line bg-carbon px-4 py-3.5 text-sm text-snow">
-                30 socios × {eur(clubPrice)} = <strong>{eur(900)}/mes recurrentes</strong>. Cofflix es
+                30 socios × {eur(clubPrice)} = <strong>{eur(900)}/mes recurrentes</strong>. Coffee Prime es
                 el ~8% de eso.
               </div>
               <Link to="/demo" className={`${btn('primary', 'lg')} mt-6 w-full`}>
@@ -323,7 +323,7 @@ export default function LandingB2B() {
             <Link to="/demo" className={btn('primary', 'lg')}>
               Ver la demo <ArrowRight size={18} strokeWidth={2.2} />
             </Link>
-            <a href="mailto:hola@cofflix.app" className={btn('outline', 'lg')}>
+            <a href="mailto:hola@coffeeprime.app" className={btn('outline', 'lg')}>
               Hablar con nosotros
             </a>
           </div>

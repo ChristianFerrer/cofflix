@@ -15,7 +15,7 @@ export default function Alta() {
   const clubUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}${window.location.pathname}#/club`
-      : 'https://cofflix.app/club'
+      : 'https://coffeeprime.app/club'
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

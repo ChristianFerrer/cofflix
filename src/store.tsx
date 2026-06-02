@@ -131,7 +131,7 @@ interface Store {
 
 const StoreContext = createContext<Store | null>(null)
 
-const LS_KEY = 'cofflix-demo-v1'
+const LS_KEY = 'coffeeprime-demo-v1'
 
 interface Persisted {
   members: Member[]

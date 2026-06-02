@@ -57,7 +57,7 @@ export default function Panel() {
         </div>
 
         <div className="rounded-2xl border border-line bg-surface p-6">
-          <div className="text-sm font-semibold text-snow">Tu cuota Cofflix</div>
+          <div className="text-sm font-semibold text-snow">Tu cuota Coffee Prime</div>
           <div className="mt-2 flex items-end gap-2">
             <span className="font-display text-3xl font-semibold text-snow">{eur(config.saasPrice)}</span>
             <span className="mb-1 text-sm text-fog">/mes</span>

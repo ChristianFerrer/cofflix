@@ -43,7 +43,7 @@ export function Logo() {
         <Coffee size={18} strokeWidth={2.4} />
       </span>
       <span className="font-display text-xl font-semibold tracking-tight text-snow">
-        Cof<span className="text-lime">flix</span>
+        Coffee <span className="text-lime">Prime</span>
       </span>
     </Link>
   )

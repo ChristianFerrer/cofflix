@@ -137,7 +137,7 @@ export default function LandingClub() {
       </section>
 
       <footer className="border-t border-line bg-ink py-10 text-center text-sm text-mist">
-        Club {config.cafeName} · con tecnología de Cofflix
+        Club {config.cafeName} · con tecnología de Coffee Prime
       </footer>
     </div>
   )
