@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ComponentType } from 'react'
 import {
   BadgeEuro,
   Coffee,
@@ -9,6 +9,7 @@ import {
   Check,
   Crown,
   Users,
+  Croissant,
 } from 'lucide-react'
 import { DemoShell, Stat, eur } from '../components/ui'
 import { useStore, useMetrics, type Member } from '../store'
@@ -57,7 +58,7 @@ export default function Panel() {
         </div>
 
         <div className="rounded-2xl border border-line bg-surface p-6">
-          <div className="text-sm font-semibold text-snow">Tu cuota Coffee Prime</div>
+          <div className="text-sm font-semibold text-snow">Tu cuota Coffee Me</div>
           <div className="mt-2 flex items-end gap-2">
             <span className="font-display text-3xl font-semibold text-snow">{eur(config.saasPrice)}</span>
             <span className="mb-1 text-sm text-fog">/mes</span>
@@ -76,6 +77,12 @@ export default function Panel() {
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <BarChart title="Cafés servidos · últimos 7 días" data={mx.last7} labels={['L', 'M', 'X', 'J', 'V', 'S', 'Hoy']} accent="var(--color-lime)" />
         <BarChart title="Socios del club · últimas 6 semanas" data={mx.growth} labels={['s1', 's2', 's3', 's4', 's5', 's6']} accent="var(--color-iris)" />
+      </div>
+
+      {/* Lo más popular */}
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <PopularCard icon={Coffee} tint="lime" label="Café más consumido" name={mx.topCoffee.name} count={mx.topCoffee.count} />
+        <PopularCard icon={Croissant} tint="iris" label="Extra más pedido" name={mx.topExtra.name} count={mx.topExtra.count} />
       </div>
 
       {/* Fidelización / CRM */}
@@ -105,6 +112,35 @@ function BarChart({ title, data, labels, accent }: { title: string; data: number
             <div className="mt-2 text-xs text-mist">{labels[i]}</div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function PopularCard({
+  icon: Icon,
+  tint,
+  label,
+  name,
+  count,
+}: {
+  icon: ComponentType<{ size?: number; strokeWidth?: number }>
+  tint: 'lime' | 'iris'
+  label: string
+  name: string
+  count: number
+}) {
+  const c = tint === 'iris' ? 'text-iris' : 'text-lime'
+  const bg = tint === 'iris' ? 'bg-iris/10' : 'bg-lime/10'
+  return (
+    <div className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-5">
+      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${bg} ${c}`}>
+        <Icon size={22} strokeWidth={2} />
+      </span>
+      <div className="min-w-0">
+        <div className="text-xs font-medium uppercase tracking-wide text-fog">{label}</div>
+        <div className="truncate font-display text-lg font-semibold text-snow">{name}</div>
+        <div className="text-xs text-mist">{count} este mes</div>
       </div>
     </div>
   )

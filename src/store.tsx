@@ -166,6 +166,16 @@ const SEED_ORDERS: Order[] = [
 const REDEMPTIONS_LAST_7 = [42, 51, 39, 58, 61, 47, 0] // el último día (hoy) es en vivo
 const MEMBERS_GROWTH = [3, 6, 9, 12, 14, 15] // últimas 6 semanas
 
+/* Base mensual de extras pedidos (para el panel; los pedidos en vivo suman) */
+const MONTH_EXTRAS_BASE: Record<string, number> = {
+  'Croissant artesano': 86,
+  'Tostada con tomate': 41,
+  'Muffin de arándanos': 63,
+  'Cookie de avena': 38,
+  'Zumo de naranja natural': 52,
+  'Bocadillo de jamón': 29,
+}
+
 /* Algunos socios que ya consumieron hoy (para mostrar el estado "rojo" en caja) */
 const SEED_REDEEMED_TODAY: Record<string, number> = { m2: 1, m4: 1 }
 
@@ -195,7 +205,7 @@ interface Store {
 
 const StoreContext = createContext<Store | null>(null)
 
-const LS_KEY = 'coffeeprime-demo-v2'
+const LS_KEY = 'coffeeme-demo-v2'
 
 interface Persisted {
   members: Member[]
@@ -360,7 +370,7 @@ export function useStore(): Store {
 /* ------------------------------------------------------------------ */
 
 export function useMetrics() {
-  const { members, redeemedToday, config } = useStore()
+  const { members, redeemedToday, orders, config } = useStore()
   return useMemo(() => {
     const active = members.filter((x) => x.status === 'active')
     const failed = members.filter((x) => x.status === 'failed')
@@ -384,7 +394,23 @@ export function useMetrics() {
     const last7 = [...REDEMPTIONS_LAST_7]
     last7[last7.length - 1] = redemptionsToday
 
+    // Café más consumido: por café favorito ponderado por consumo del mes
+    const coffeeTally: Record<string, number> = {}
+    members.forEach((x) => {
+      if (x.status !== 'cancelled') coffeeTally[x.favorite] = (coffeeTally[x.favorite] ?? 0) + x.monthRedemptions
+    })
+    const topCoffeeEntry = Object.entries(coffeeTally).sort((a, b) => b[1] - a[1])[0] ?? ['—', 0]
+    const topCoffee = { name: topCoffeeEntry[0], count: topCoffeeEntry[1] }
+
+    // Extra más pedido: base mensual + pedidos en vivo
+    const extraTally: Record<string, number> = { ...MONTH_EXTRAS_BASE }
+    orders.forEach((o) => o.extras.forEach((e) => (extraTally[e.name] = (extraTally[e.name] ?? 0) + 1)))
+    const topExtraEntry = Object.entries(extraTally).sort((a, b) => b[1] - a[1])[0] ?? ['—', 0]
+    const topExtra = { name: topExtraEntry[0], count: topExtraEntry[1] }
+
     return {
+      topCoffee,
+      topExtra,
       activeCount: active.length,
       failedCount: failed.length,
       mrrClub,
@@ -399,5 +425,5 @@ export function useMetrics() {
       last7,
       growth: MEMBERS_GROWTH,
     }
-  }, [members, redeemedToday, config])
+  }, [members, redeemedToday, orders, config])
 }

@@ -22,7 +22,9 @@ export default function Caja() {
     return list.slice(0, 40)
   }, [members, query])
 
-  const pending = orders.filter((o) => o.status === 'pending')
+  const pending = orders
+    .filter((o) => o.status === 'pending')
+    .sort((a, b) => etaMinutes(a.eta) - etaMinutes(b.eta) || b.placedAgoMin - a.placedAgoMin)
   const selected = members.find((m) => m.id === selectedId) ?? null
   const result = selected ? verify(selected.id) : null
 
@@ -107,10 +109,17 @@ export default function Caja() {
   )
 }
 
+function etaMinutes(eta: string) {
+  if (/ahora/i.test(eta)) return 0
+  const match = eta.match(/\d+/)
+  return match ? parseInt(match[0], 10) : 99
+}
+
 function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }) {
   const extrasTotal = order.extras.reduce((a, e) => a + e.price, 0)
+  const free = extrasTotal === 0
   return (
-    <div className="rounded-xl border border-line bg-surface2 p-3.5">
+    <div className={`rounded-xl border bg-surface2 p-3.5 ${free ? 'border-mint/40 ring-1 ring-mint/20' : 'border-line'}`}>
       <div className="flex items-start justify-between">
         <div>
           <div className="text-sm font-semibold text-snow">{order.memberName}</div>
@@ -134,11 +143,20 @@ function OrderCard({ order, onDeliver }: { order: Order; onDeliver: () => void }
           </div>
         ))}
       </div>
-      <div className="mt-2.5 flex items-center justify-between border-t border-line pt-2.5">
-        <span className="text-xs text-mist">A cobrar: <strong className="text-snow">{eur(extrasTotal, 2)}</strong></span>
+      <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+        {free ? (
+          <span className="flex items-center gap-1.5 rounded-lg bg-mint/15 px-2.5 py-1.5 font-display text-base font-semibold text-mint">
+            <Check size={16} strokeWidth={3} /> Sin cobro
+          </span>
+        ) : (
+          <div className="leading-none">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-mist">A cobrar</div>
+            <div className="mt-0.5 font-display text-2xl font-semibold text-amber">{eur(extrasTotal, 2)}</div>
+          </div>
+        )}
         <button
           onClick={onDeliver}
-          className="flex items-center gap-1.5 rounded-full bg-lime px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-lime-deep active:scale-95"
+          className="flex items-center gap-1.5 rounded-full bg-lime px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-lime-deep active:scale-95"
         >
           <Check size={13} strokeWidth={2.5} /> Entregar
         </button>

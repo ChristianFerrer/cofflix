@@ -1,4 +1,4 @@
-# Coffee Prime
+# Coffee Me
 
 Infraestructura de **clubs de café por membresía** para cafés de especialidad.
 

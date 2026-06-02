@@ -45,7 +45,7 @@ export default function DemoHub() {
         <div className="max-w-2xl animate-fade-up">
           <Badge>Demo interactiva · datos de ejemplo</Badge>
           <h1 className="mt-5 font-display text-3xl font-semibold leading-tight text-snow sm:text-[2.75rem]">
-            Así funciona Coffee Prime en {config.cafeName}.
+            Así funciona Coffee Me en {config.cafeName}.
           </h1>
           <p className="mt-4 text-fog">
             Tres pantallas, una para cada momento: la barra, el alta del cliente y el control del
