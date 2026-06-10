@@ -5,6 +5,7 @@ import './index.css'
 import { StoreProvider } from './store'
 import LandingB2B from './pages/LandingB2B'
 import LandingClub from './pages/LandingClub'
+import Modelo from './pages/Modelo'
 import DemoHub from './pages/DemoHub'
 import Caja from './pages/Caja'
 import Alta from './pages/Alta'
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<LandingB2B />} />
           <Route path="/club" element={<LandingClub />} />
+          <Route path="/modelo" element={<Modelo />} />
           <Route path="/demo" element={<DemoHub />} />
           <Route path="/demo/caja" element={<Caja />} />
           <Route path="/demo/alta" element={<Alta />} />

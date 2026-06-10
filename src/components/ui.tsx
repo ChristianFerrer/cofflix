@@ -84,6 +84,9 @@ export function SiteNav() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Logo />
         <div className="flex items-center gap-2 text-sm font-medium text-fog">
+          <Link to="/modelo" className="hidden rounded-full px-4 py-2 transition hover:text-snow sm:inline">
+            Modelo
+          </Link>
           <Link to="/club" className="hidden rounded-full px-4 py-2 transition hover:text-snow sm:inline">
             Para clientes
           </Link>
