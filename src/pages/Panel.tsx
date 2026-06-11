@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   Target,
   UserPlus,
+  Gift,
 } from 'lucide-react'
 import { DemoShell, Stat, eur } from '../components/ui'
 import { useStore, useMetrics, CAPTURE_THRESHOLD, type Member } from '../store'
@@ -178,10 +179,11 @@ function LineChart({ title, data, labels, accent }: { title: string; data: numbe
 }
 
 function CapturePanel() {
-  const { prospects, config, convertProspect, markProspectOffered } = useStore()
+  const { prospects, members, config, convertProspect, markProspectOffered } = useStore()
   const sorted = prospects
     .filter((p) => p.visitsThisMonth >= CAPTURE_THRESHOLD)
     .sort((a, b) => b.visitsThisMonth - a.visitsThisMonth)
+  const referralSignups = members.reduce((a, b) => a + (b.referrals ?? 0), 0)
 
   return (
     <div className="rounded-2xl border border-lime/20 bg-surface p-5">
@@ -189,9 +191,14 @@ function CapturePanel() {
         <div className="flex items-center gap-2 text-sm font-semibold text-snow">
           <Target size={16} className="text-lime" /> Capta: frecuentes que aún no son socios
         </div>
-        <span className="rounded-full bg-lime/10 px-2 py-0.5 text-xs font-semibold text-lime ring-1 ring-lime/20">
-          {sorted.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1 text-xs font-medium text-iris">
+            <Gift size={13} /> {referralSignups} por referido
+          </span>
+          <span className="rounded-full bg-lime/10 px-2 py-0.5 text-xs font-semibold text-lime ring-1 ring-lime/20">
+            {sorted.length}
+          </span>
+        </div>
       </div>
       <p className="mt-1 text-xs text-fog">
         Apuntados (nivel gratis) que ya vienen +{CAPTURE_THRESHOLD} veces/mes. Tu mejor lista para captar — con la frase de venta hecha.

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Coffee, Plus, Minus, Clock, Phone, ShoppingBag, CircleCheck, Bell } from 'lucide-react'
+import { Coffee, Plus, Minus, Clock, Phone, ShoppingBag, CircleCheck, Bell, Gift, Share2, Check } from 'lucide-react'
 import { DemoShell, btn, eur, productIcon } from '../components/ui'
 import { useStore, ORDER_FLOW, type Order, type OrderItem } from '../store'
 
@@ -259,6 +259,9 @@ export default function Socio() {
           )}
         </div>
 
+        {/* Invita y gana */}
+        <InviteCard name={me.name} phone={me.phone} referrals={me.referrals} cafe={config.cafeName} />
+
         {/* Mis pedidos */}
         <div className="rounded-3xl border border-line bg-surface p-6">
           <h3 className="font-display text-lg font-semibold text-snow">Mis pedidos</h3>
@@ -271,6 +274,48 @@ export default function Socio() {
         </div>
       </div>
     </DemoShell>
+  )
+}
+
+function InviteCard({ name, phone, referrals, cafe }: { name: string; phone: string; referrals: number; cafe: string }) {
+  const [copied, setCopied] = useState(false)
+  const code = `CLUB-${name.split(' ')[0].toUpperCase()}${phone.replace(/\D/g, '').slice(-2)}`
+  const text = `Únete al Club de ${cafe} con mi código ${code} y los dos ganamos una semana gratis · https://coffeeme.app/club`
+
+  function share() {
+    try {
+      navigator.clipboard?.writeText(text)
+    } catch {
+      /* ignore */
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  return (
+    <div className="rounded-3xl border border-lime/20 bg-surface p-6">
+      <div className="flex items-center gap-2 text-sm font-semibold text-snow">
+        <Gift size={16} className="text-lime" /> Invita y gana
+      </div>
+      <p className="mt-1 text-sm text-fog">
+        Por cada amigo que se una al club, <strong className="text-snow">una semana gratis para los dos</strong>.
+      </p>
+
+      <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-line2 bg-surface2 px-4 py-3">
+        <div>
+          <div className="text-[11px] uppercase tracking-wide text-mist">Tu código</div>
+          <div className="font-display text-lg font-semibold text-lime">{code}</div>
+        </div>
+        <button onClick={share} className={btn(copied ? 'outline' : 'primary')}>
+          {copied ? <><Check size={16} strokeWidth={2.5} /> Copiado</> : <><Share2 size={16} strokeWidth={2.2} /> Compartir</>}
+        </button>
+      </div>
+
+      <div className="mt-3 text-xs text-fog">
+        Has invitado a <strong className="text-snow">{referrals}</strong> amigo{referrals === 1 ? '' : 's'}
+        {referrals > 0 && <span className="text-mint"> · {referrals} semana{referrals === 1 ? '' : 's'} gratis ganadas</span>}
+      </div>
+    </div>
   )
 }
 

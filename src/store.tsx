@@ -24,6 +24,7 @@ export interface Member {
   lastVisitDaysAgo: number
   favorite: string
   attachVisits: number // visitas en las que añadió bollería/extra
+  referrals: number // amigos que se unieron con su código
 }
 
 export interface Product {
@@ -149,6 +150,7 @@ function m(
     lastVisitDaysAgo,
     favorite,
     attachVisits,
+    referrals: 0,
   }
 }
 
@@ -170,6 +172,11 @@ const SEED_MEMBERS: Member[] = [
   m('Marta Coll', 'cancelled', 210, 0, 28, 'Latte', 9),
   m('Ferran Pujol', 'active', 52, 11, 1, 'Cold brew', 4),
 ]
+// Algunos socios ya han traído amigos (para la métrica de referidos)
+SEED_MEMBERS[0].referrals = 3 // Laura
+SEED_MEMBERS[1].referrals = 1 // Marc
+SEED_MEMBERS[3].referrals = 2 // Pol
+SEED_MEMBERS[7].referrals = 4 // Bruno
 
 function findSeed(id: string) {
   return SEED_MEMBERS.find((x) => x.id === id)!
@@ -257,7 +264,7 @@ interface Store {
 
 const StoreContext = createContext<Store | null>(null)
 
-const LS_KEY = 'coffeeme-demo-v4'
+const LS_KEY = 'coffeeme-demo-v5'
 
 interface Persisted {
   members: Member[]
@@ -372,6 +379,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lastVisitDaysAgo: 0,
           favorite: favorite || 'Flat white',
           attachVisits: 0,
+          referrals: 0,
         }
         setMembers((prev) => [newMember, ...prev])
         setCurrentMemberId(newMember.id)
@@ -441,6 +449,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lastVisitDaysAgo: 0,
           favorite: pr.favorite,
           attachVisits: 0,
+          referrals: 0,
         }
         setMembers((prev) => [newMember, ...prev])
         setProspects((prev) => prev.filter((x) => x.id !== id))
@@ -486,6 +495,7 @@ export function useMetrics() {
     const monthRedemptions = members.reduce((a, b) => a + b.monthRedemptions, 0)
     const attachVisits = members.reduce((a, b) => a + b.attachVisits, 0)
     const attachRate = monthRedemptions ? Math.round((attachVisits / monthRedemptions) * 100) : 0
+    const referralSignups = members.reduce((a, b) => a + (b.referrals ?? 0), 0)
 
     // Punto de equilibrio de cafés por socio: clubPrice / cogs
     const breakeven = Math.round(config.clubPrice / config.cogs)
@@ -520,6 +530,7 @@ export function useMetrics() {
       topExtra,
       activeCount: active.length,
       failedCount: failed.length,
+      referralSignups,
       mrrClub,
       redemptionsToday,
       monthRedemptions,
