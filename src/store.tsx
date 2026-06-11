@@ -72,6 +72,16 @@ export interface CafeConfig {
   perk: string
 }
 
+/* Cliente frecuente que aún NO es socio (oportunidad de captación) */
+export interface Prospect {
+  id: string
+  name: string
+  phone: string
+  favorite: string
+  visitsThisMonth: number
+  offered: boolean
+}
+
 export interface VerifyResult {
   ok: boolean
   tone: 'ok' | 'deny'
@@ -184,6 +194,21 @@ const SEED_ORDERS: Order[] = [
 const REDEMPTIONS_LAST_7 = [42, 51, 39, 58, 61, 47, 0] // el último día (hoy) es en vivo
 const MEMBERS_GROWTH = [3, 6, 9, 12, 14, 15] // últimas 6 semanas
 
+/* Clientes frecuentes que aún NO son socios (oportunidad de captación) */
+let _pseq = 0
+function prospect(name: string, favorite: string, visitsThisMonth: number): Prospect {
+  _pseq += 1
+  return { id: `p${_pseq}`, name, phone: phoneFor(100 + _pseq), favorite, visitsThisMonth, offered: false }
+}
+const SEED_PROSPECTS: Prospect[] = [
+  prospect('Arnau Vidal', 'Espresso', 20),
+  prospect('Èlia Fontana', 'Flat white', 18),
+  prospect('Pau Riera', 'Cold brew', 14),
+  prospect('Roger Quer', 'Cortado', 13),
+  prospect('Mar Soldevila', 'Latte', 11),
+  prospect('Carla Móra', 'Cappuccino', 9),
+]
+
 /* Base mensual de extras pedidos (para el panel; los pedidos en vivo suman) */
 const MONTH_EXTRAS_BASE: Record<string, number> = {
   'Croissant artesano': 86,
@@ -208,6 +233,7 @@ interface Store {
   members: Member[]
   orders: Order[]
   products: Product[]
+  prospects: Prospect[]
   redeemedToday: Record<string, number>
   favorites: string[]
   currentMemberId: string
@@ -218,18 +244,21 @@ interface Store {
   redeem: (id: string) => VerifyResult
   placeOrder: (memberId: string, includedDrink: string | null, extras: OrderItem[], eta: string) => void
   advanceOrder: (orderId: string) => void
+  convertProspect: (id: string) => void
+  markProspectOffered: (id: string) => void
   reactivate: (id: string) => void
   resetDemo: () => void
 }
 
 const StoreContext = createContext<Store | null>(null)
 
-const LS_KEY = 'coffeeme-demo-v3'
+const LS_KEY = 'coffeeme-demo-v4'
 
 interface Persisted {
   members: Member[]
   redeemedToday: Record<string, number>
   orders: Order[]
+  prospects: Prospect[]
   currentMemberId: string
   config: CafeConfig
 }
@@ -245,6 +274,7 @@ function load(): Persisted {
     members: SEED_MEMBERS,
     redeemedToday: SEED_REDEEMED_TODAY,
     orders: SEED_ORDERS,
+    prospects: SEED_PROSPECTS,
     currentMemberId: DEFAULT_MEMBER,
     config: DEFAULT_CONFIG,
   }
@@ -255,12 +285,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<Member[]>(initial.members)
   const [redeemedToday, setRedeemedToday] = useState<Record<string, number>>(initial.redeemedToday)
   const [orders, setOrders] = useState<Order[]>(initial.orders ?? SEED_ORDERS)
+  const [prospects, setProspects] = useState<Prospect[]>(initial.prospects ?? SEED_PROSPECTS)
   const [currentMemberId, setCurrentMemberId] = useState<string>(initial.currentMemberId ?? DEFAULT_MEMBER)
   const [config, setConfig] = useState<CafeConfig>(initial.config ?? DEFAULT_CONFIG)
 
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify({ members, redeemedToday, orders, currentMemberId, config }))
-  }, [members, redeemedToday, orders, currentMemberId, config])
+    localStorage.setItem(LS_KEY, JSON.stringify({ members, redeemedToday, orders, prospects, currentMemberId, config }))
+  }, [members, redeemedToday, orders, prospects, currentMemberId, config])
 
   const value = useMemo<Store>(() => {
     function verifyInternal(id: string): VerifyResult {
@@ -316,6 +347,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       members,
       orders,
       products: PRODUCTS,
+      prospects,
       redeemedToday,
       favorites: FAVORITES,
       currentMemberId,
@@ -374,6 +406,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           if (v.ok) doRedeem(order.memberId, order.extras.length > 0)
         }
       },
+      convertProspect(id) {
+        const pr = prospects.find((x) => x.id === id)
+        if (!pr) return
+        _seq += 1
+        const newMember: Member = {
+          id: `m${_seq}-${Date.now()}`,
+          name: pr.name,
+          email: `${pr.name.toLowerCase().replace(/[^a-z]+/g, '.')}@email.com`,
+          phone: pr.phone,
+          status: 'active',
+          joinedDaysAgo: 0,
+          monthRedemptions: 0,
+          lastVisitDaysAgo: 0,
+          favorite: pr.favorite,
+          attachVisits: 0,
+        }
+        setMembers((prev) => [newMember, ...prev])
+        setProspects((prev) => prev.filter((x) => x.id !== id))
+      },
+      markProspectOffered(id) {
+        setProspects((prev) => prev.map((x) => (x.id === id ? { ...x, offered: !x.offered } : x)))
+      },
       reactivate(id) {
         setMembers((prev) => prev.map((x) => (x.id === id ? { ...x, lastVisitDaysAgo: 0 } : x)))
       },
@@ -382,11 +436,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setMembers(SEED_MEMBERS)
         setRedeemedToday(SEED_REDEEMED_TODAY)
         setOrders(SEED_ORDERS)
+        setProspects(SEED_PROSPECTS)
         setCurrentMemberId(DEFAULT_MEMBER)
         setConfig(DEFAULT_CONFIG)
       },
     }
-  }, [members, redeemedToday, orders, currentMemberId, config])
+  }, [members, redeemedToday, orders, prospects, currentMemberId, config])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }

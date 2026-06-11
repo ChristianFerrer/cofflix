@@ -11,6 +11,8 @@ import {
   Users,
   Croissant,
   SlidersHorizontal,
+  Target,
+  UserPlus,
 } from 'lucide-react'
 import { DemoShell, Stat, eur } from '../components/ui'
 import { useStore, useMetrics, type Member } from '../store'
@@ -103,6 +105,11 @@ export default function Panel() {
         </div>
       </div>
 
+      {/* Captación: frecuentes que aún no son socios */}
+      <div className="mt-5">
+        <CapturePanel />
+      </div>
+
       {/* Gráficos */}
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <LineChart title="Cafés servidos · últimos 7 días" data={mx.last7} labels={['L', 'M', 'X', 'J', 'V', 'S', 'Hoy']} accent="var(--color-lime)" />
@@ -165,6 +172,79 @@ function LineChart({ title, data, labels, accent }: { title: string; data: numbe
         {labels.map((l, i) => (
           <span key={i} className="text-xs text-mist">{l}</span>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function CapturePanel() {
+  const { prospects, config, convertProspect, markProspectOffered } = useStore()
+  const sorted = [...prospects].sort((a, b) => b.visitsThisMonth - a.visitsThisMonth)
+
+  return (
+    <div className="rounded-2xl border border-lime/20 bg-surface p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm font-semibold text-snow">
+          <Target size={16} className="text-lime" /> Capta: frecuentes que aún no son socios
+        </div>
+        <span className="rounded-full bg-lime/10 px-2 py-0.5 text-xs font-semibold text-lime ring-1 ring-lime/20">
+          {prospects.length}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-fog">
+        Vienen casi a diario pero no tienen el club. Tu mejor lista para captar — y la frase de venta hecha.
+      </p>
+
+      <div className="mt-4 space-y-2">
+        {sorted.length === 0 && (
+          <div className="flex flex-col items-center gap-2 py-6 text-center text-sm text-fog">
+            <Check size={22} className="text-mint" /> Todos tus frecuentes ya son socios.
+          </div>
+        )}
+        {sorted.map((p) => {
+          const spend = p.visitsThisMonth * config.retailPrice
+          const savings = Math.max(0, spend - config.clubPrice)
+          return (
+            <div
+              key={p.id}
+              className={`flex flex-col gap-3 rounded-xl border bg-surface2 p-3.5 sm:flex-row sm:items-center sm:justify-between ${
+                p.offered ? 'border-line opacity-60' : 'border-line'
+              }`}
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-snow">{p.name}</span>
+                  <span className="rounded-full bg-carbon px-2 py-0.5 text-[11px] font-semibold text-lime">
+                    {p.visitsThisMonth} visitas/mes
+                  </span>
+                  {p.offered && <span className="text-[11px] font-semibold text-mint">· Ofrecido</span>}
+                </div>
+                <div className="mt-1 text-xs text-fog">
+                  Toma <span className="text-snow">{p.favorite}</span> · gasta ~{eur(spend)}/mes ·{' '}
+                  {savings > 0 ? (
+                    <>ahorraría <span className="font-semibold text-amber">{eur(savings)}</span> con el club</>
+                  ) : (
+                    <>aún no le sale a cuenta</>
+                  )}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => markProspectOffered(p.id)}
+                  className="rounded-full border border-line px-3 py-1.5 text-xs font-medium text-fog transition hover:text-snow"
+                >
+                  {p.offered ? 'Quitar' : 'Ofrecido'}
+                </button>
+                <button
+                  onClick={() => convertProspect(p.id)}
+                  className="flex items-center gap-1.5 rounded-full bg-lime px-3.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-lime-deep active:scale-95"
+                >
+                  <UserPlus size={13} strokeWidth={2.5} /> Convertir a socio
+                </button>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
