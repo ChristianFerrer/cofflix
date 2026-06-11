@@ -50,6 +50,9 @@ export const ORDER_LABEL: Record<OrderStatus, string> = {
   delivered: 'Entregado',
 }
 
+/* Visitas/mes a partir de las cuales un cliente apuntado es "captable" */
+export const CAPTURE_THRESHOLD = 8
+
 export interface Order {
   id: string
   memberId: string
@@ -244,6 +247,8 @@ interface Store {
   redeem: (id: string) => VerifyResult
   placeOrder: (memberId: string, includedDrink: string | null, extras: OrderItem[], eta: string) => void
   advanceOrder: (orderId: string) => void
+  addProspect: (name: string, phone: string, favorite: string) => void
+  addProspectVisit: (id: string) => void
   convertProspect: (id: string) => void
   markProspectOffered: (id: string) => void
   reactivate: (id: string) => void
@@ -405,6 +410,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const v = verifyInternal(order.memberId)
           if (v.ok) doRedeem(order.memberId, order.extras.length > 0)
         }
+      },
+      addProspect(name, phone, favorite) {
+        _pseq += 1
+        const pr: Prospect = {
+          id: `p${_pseq}-${Date.now()}`,
+          name: name.trim(),
+          phone: phone.trim() || phoneFor(100 + _pseq),
+          favorite: favorite || 'Flat white',
+          visitsThisMonth: 1,
+          offered: false,
+        }
+        setProspects((prev) => [pr, ...prev])
+      },
+      addProspectVisit(id) {
+        setProspects((prev) => prev.map((x) => (x.id === id ? { ...x, visitsThisMonth: x.visitsThisMonth + 1 } : x)))
       },
       convertProspect(id) {
         const pr = prospects.find((x) => x.id === id)

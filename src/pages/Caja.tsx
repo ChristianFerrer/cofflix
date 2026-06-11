@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight } from 'lucide-react'
-import { DemoShell, eur, productIcon } from '../components/ui'
-import { useStore, ORDER_FLOW, ORDER_LABEL, type Member, type Order, type VerifyResult } from '../store'
+import { Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight, UserPlus, Plus, Users } from 'lucide-react'
+import { DemoShell, eur, productIcon, btn } from '../components/ui'
+import { useStore, ORDER_FLOW, ORDER_LABEL, CAPTURE_THRESHOLD, type Member, type Order, type Prospect, type VerifyResult } from '../store'
 
 export default function Caja() {
   const { members, orders, verify, redeem, redeemedToday, advanceOrder } = useStore()
@@ -105,7 +105,95 @@ export default function Caja() {
         <strong className="text-fog">Marc Soler</strong> ya tomó su café hoy ·{' '}
         <strong className="text-fog">David Lluch</strong> tiene un pago pendiente.
       </p>
+
+      <ApuntadosPanel />
     </DemoShell>
+  )
+}
+
+function ApuntadosPanel() {
+  const { prospects, favorites, addProspect, addProspectVisit } = useStore()
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [fav, setFav] = useState(favorites[0])
+
+  const sorted = [...prospects].sort((a, b) => b.visitsThisMonth - a.visitsThisMonth)
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim() || !phone.trim()) return
+    addProspect(name, phone, fav)
+    setName('')
+    setPhone('')
+    setOpen(false)
+  }
+
+  const inputCls =
+    'w-full rounded-xl border border-line bg-surface2 px-3 py-2 text-sm text-snow placeholder:text-mist outline-none transition focus:border-lime/50'
+
+  return (
+    <div className="mt-5 rounded-2xl border border-line bg-surface p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-snow">
+            <Users size={16} className="text-iris" /> Clientes apuntados · nivel gratis
+          </div>
+          <p className="mt-1 text-xs text-fog">
+            Apunta a un cliente gratis y suma sus visitas. A las {CAPTURE_THRESHOLD} pasa a tu lista de
+            captación en el panel.
+          </p>
+        </div>
+        <button onClick={() => setOpen((v) => !v)} className={btn(open ? 'outline' : 'primary')}>
+          <UserPlus size={16} strokeWidth={2.2} /> {open ? 'Cerrar' : 'Apuntar cliente'}
+        </button>
+      </div>
+
+      {open && (
+        <form onSubmit={submit} className="mt-4 grid gap-2 rounded-xl border border-line bg-surface2 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" className={inputCls} />
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono" className={inputCls} />
+          <select value={fav} onChange={(e) => setFav(e.target.value)} className={inputCls}>
+            {favorites.map((f) => (
+              <option key={f} className="bg-surface2">{f}</option>
+            ))}
+          </select>
+          <button type="submit" className={btn('primary')}>Apuntar</button>
+        </form>
+      )}
+
+      <div className="mt-4 space-y-2">
+        {sorted.length === 0 && <p className="py-4 text-center text-sm text-fog">Aún no hay clientes apuntados.</p>}
+        {sorted.map((p) => (
+          <ProspectRow key={p.id} prospect={p} onVisit={() => addProspectVisit(p.id)} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ProspectRow({ prospect: p, onVisit }: { prospect: Prospect; onVisit: () => void }) {
+  const captable = p.visitsThisMonth >= CAPTURE_THRESHOLD
+  const left = Math.max(0, CAPTURE_THRESHOLD - p.visitsThisMonth)
+  return (
+    <div className={`flex items-center justify-between gap-3 rounded-xl border bg-surface2 px-3 py-2.5 ${captable ? 'border-lime/40' : 'border-line'}`}>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm font-medium text-snow">{p.name}</span>
+          {captable && <span className="rounded-full bg-lime/10 px-2 py-0.5 text-[10px] font-semibold text-lime">captable</span>}
+        </div>
+        <div className="text-xs text-mist">
+          {p.favorite} · {p.visitsThisMonth} visitas/mes
+          {!captable && <span> · faltan {left} para captar</span>}
+        </div>
+      </div>
+      <button
+        onClick={onVisit}
+        className="flex shrink-0 items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-snow transition hover:border-lime/50 hover:text-lime active:scale-95"
+      >
+        <Plus size={13} strokeWidth={2.5} /> visita
+      </button>
+    </div>
   )
 }
 

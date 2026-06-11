@@ -15,7 +15,7 @@ import {
   UserPlus,
 } from 'lucide-react'
 import { DemoShell, Stat, eur } from '../components/ui'
-import { useStore, useMetrics, type Member } from '../store'
+import { useStore, useMetrics, CAPTURE_THRESHOLD, type Member } from '../store'
 
 export default function Panel() {
   const { config, updateConfig } = useStore()
@@ -179,7 +179,9 @@ function LineChart({ title, data, labels, accent }: { title: string; data: numbe
 
 function CapturePanel() {
   const { prospects, config, convertProspect, markProspectOffered } = useStore()
-  const sorted = [...prospects].sort((a, b) => b.visitsThisMonth - a.visitsThisMonth)
+  const sorted = prospects
+    .filter((p) => p.visitsThisMonth >= CAPTURE_THRESHOLD)
+    .sort((a, b) => b.visitsThisMonth - a.visitsThisMonth)
 
   return (
     <div className="rounded-2xl border border-lime/20 bg-surface p-5">
@@ -188,17 +190,17 @@ function CapturePanel() {
           <Target size={16} className="text-lime" /> Capta: frecuentes que aún no son socios
         </div>
         <span className="rounded-full bg-lime/10 px-2 py-0.5 text-xs font-semibold text-lime ring-1 ring-lime/20">
-          {prospects.length}
+          {sorted.length}
         </span>
       </div>
       <p className="mt-1 text-xs text-fog">
-        Vienen casi a diario pero no tienen el club. Tu mejor lista para captar — y la frase de venta hecha.
+        Apuntados (nivel gratis) que ya vienen +{CAPTURE_THRESHOLD} veces/mes. Tu mejor lista para captar — con la frase de venta hecha.
       </p>
 
       <div className="mt-4 space-y-2">
         {sorted.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-6 text-center text-sm text-fog">
-            <Check size={22} className="text-mint" /> Todos tus frecuentes ya son socios.
+            <Check size={22} className="text-mint" /> Ningún frecuente pendiente de captar por ahora.
           </div>
         )}
         {sorted.map((p) => {
