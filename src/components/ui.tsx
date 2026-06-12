@@ -87,6 +87,9 @@ export function SiteNav() {
           <Link to="/club" className="hidden rounded-full px-4 py-2 transition hover:text-snow sm:inline">
             Para clientes
           </Link>
+          <Link to="/login" className="rounded-full px-4 py-2 transition hover:text-snow">
+            Entrar
+          </Link>
           <Link to="/demo" className={btn('primary')}>
             Ver demo
           </Link>
