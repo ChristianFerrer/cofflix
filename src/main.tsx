@@ -13,6 +13,7 @@ import Alta from './pages/Alta'
 import Socio from './pages/Socio'
 import Panel from './pages/Panel'
 import Login from './pages/Login'
+import ResetPassword from './pages/ResetPassword'
 import AppHome from './pages/app/AppHome'
 import AdminConsole from './pages/app/AdminConsole'
 import CafeDashboard from './pages/app/CafeDashboard'
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<LandingB2B />} />
             <Route path="/club" element={<LandingClub />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Demo sandbox (datos simulados) */}
             <Route path="/demo" element={<DemoHub />} />

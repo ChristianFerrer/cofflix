@@ -18,6 +18,17 @@ VITE_SUPABASE_ANON_KEY=<anon o publishable key>
 
 (La anon/publishable key es pública; segura en el cliente. La `service_role` NO se usa aquí.)
 
+## 1b. Auth → Email + contraseña
+
+El login por **email y contraseña** (con registro y "olvidé mi contraseña") está
+activo por defecto en Supabase, no requiere configuración. Dos notas:
+
+- **Confirmación de email:** por defecto Supabase pide confirmar el email tras
+  registrarse. Si quieres que el alta sea inmediata (sin confirmar), desactiva
+  *Confirm email* en **Authentication → Providers → Email**.
+- Los emails (confirmación y recuperación) usan el SMTP por defecto de Supabase
+  (limitado). Para producción, configura un SMTP propio en **Authentication → Emails**.
+
 ## 2. Auth → Google (necesario para "Continuar con Google")
 
 1. **Google Cloud Console** → APIs & Services → Credentials → *Create OAuth client ID*

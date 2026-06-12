@@ -1,39 +1,75 @@
 import { useState } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { Mail, ArrowLeft, CircleCheck } from 'lucide-react'
+import { ArrowLeft, CircleCheck } from 'lucide-react'
 import { Logo, btn } from '../components/ui'
 import { useAuth } from '../auth/AuthProvider'
 import { isSupabaseConfigured } from '../lib/supabase'
 
+type Mode = 'signin' | 'signup' | 'forgot'
+
+const inputCls =
+  'w-full rounded-xl border border-line bg-surface2 px-4 py-2.5 text-snow placeholder:text-mist outline-none transition focus:border-lime/50 focus:ring-2 focus:ring-lime/20'
+
 export default function Login() {
-  const { session, loading, signInWithGoogle, signInWithEmail } = useAuth()
+  const { session, loading, signInWithGoogle, signIn, signUp, resetPassword } = useAuth()
+  const [mode, setMode] = useState<Mode>('signin')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [password, setPassword] = useState('')
   const [err, setErr] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   if (!loading && session) return <Navigate to="/app" replace />
 
-  async function magicLink(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setBusy(true)
+  function switchMode(m: Mode) {
+    setMode(m)
     setErr(null)
-    const { error } = await signInWithEmail(email.trim())
-    setBusy(false)
-    if (error) setErr(error)
-    else setSent(true)
+    setNotice(null)
   }
 
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setErr(null)
+    setNotice(null)
+    if (!email.trim()) return
+    setBusy(true)
+    if (mode === 'signin') {
+      const { error } = await signIn(email.trim(), password)
+      if (error) setErr(traducir(error))
+    } else if (mode === 'signup') {
+      if (password.length < 6) {
+        setErr('La contraseña debe tener al menos 6 caracteres.')
+        setBusy(false)
+        return
+      }
+      const { error, needsConfirm } = await signUp(email.trim(), password, name.trim())
+      if (error) setErr(traducir(error))
+      else if (needsConfirm) setNotice(`Te enviamos un email a ${email} para confirmar tu cuenta.`)
+    } else {
+      const { error } = await resetPassword(email.trim())
+      if (error) setErr(traducir(error))
+      else setNotice(`Te enviamos un enlace a ${email} para restablecer tu contraseña.`)
+    }
+    setBusy(false)
+  }
+
+  const title = mode === 'signup' ? 'Crea tu cuenta' : mode === 'forgot' ? 'Recupera tu acceso' : 'Entra a tu panel'
+  const cta = mode === 'signup' ? 'Crear cuenta' : mode === 'forgot' ? 'Enviar enlace' : 'Entrar'
+
   return (
-    <div className="grid min-h-screen place-items-center bg-glow px-6">
+    <div className="grid min-h-screen place-items-center bg-glow px-6 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
         <div className="rounded-3xl border border-line bg-surface p-8 shadow-lift">
-          <h1 className="font-display text-2xl font-semibold text-snow">Entra a tu panel</h1>
-          <p className="mt-1 text-sm text-fog">Para dueños de café y equipo de Coffee Me.</p>
+          <h1 className="font-display text-2xl font-semibold text-snow">{title}</h1>
+          <p className="mt-1 text-sm text-fog">
+            {mode === 'forgot'
+              ? 'Te enviaremos un enlace para crear una nueva contraseña.'
+              : 'Para dueños de café y equipo de Coffee Me.'}
+          </p>
 
           {!isSupabaseConfigured && (
             <div className="mt-4 rounded-xl border border-rose/30 bg-rose-soft px-3 py-2 text-xs text-rose">
@@ -41,35 +77,77 @@ export default function Login() {
             </div>
           )}
 
-          {sent ? (
+          {notice ? (
             <div className="mt-6 rounded-2xl border border-mint/30 bg-mint-soft p-5 text-center">
               <CircleCheck size={28} className="mx-auto text-mint" />
-              <p className="mt-2 text-sm text-snow">Te enviamos un enlace de acceso a <strong>{email}</strong>.</p>
-              <p className="mt-1 text-xs text-fog">Ábrelo en este dispositivo para entrar.</p>
+              <p className="mt-2 text-sm text-snow">{notice}</p>
+              <button onClick={() => switchMode('signin')} className="mt-3 text-xs font-semibold text-lime">
+                Volver a entrar
+              </button>
             </div>
           ) : (
             <>
-              <button onClick={signInWithGoogle} className={`${btn('accent', 'lg')} mt-6 w-full`}>
-                <GoogleIcon /> Continuar con Google
-              </button>
+              {mode !== 'forgot' && (
+                <>
+                  <button onClick={signInWithGoogle} className={`${btn('accent', 'lg')} mt-6 w-full`}>
+                    <GoogleIcon /> Continuar con Google
+                  </button>
+                  <div className="my-5 flex items-center gap-3 text-xs text-mist">
+                    <span className="h-px flex-1 bg-line" /> o con tu email <span className="h-px flex-1 bg-line" />
+                  </div>
+                </>
+              )}
 
-              <div className="my-5 flex items-center gap-3 text-xs text-mist">
-                <span className="h-px flex-1 bg-line" /> o con tu email <span className="h-px flex-1 bg-line" />
-              </div>
-
-              <form onSubmit={magicLink} className="space-y-3">
+              <form onSubmit={submit} className={`space-y-3 ${mode === 'forgot' ? 'mt-6' : ''}`}>
+                {mode === 'signup' && (
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" className={inputCls} />
+                )}
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
-                  className="w-full rounded-xl border border-line bg-surface2 px-4 py-2.5 text-snow placeholder:text-mist outline-none transition focus:border-lime/50 focus:ring-2 focus:ring-lime/20"
+                  autoComplete="email"
+                  className={inputCls}
                 />
-                <button type="submit" disabled={busy} className={`${btn('outline', 'lg')} w-full disabled:opacity-50`}>
-                  <Mail size={17} strokeWidth={2.2} /> {busy ? 'Enviando…' : 'Enviar enlace de acceso'}
+                {mode !== 'forgot' && (
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Contraseña"
+                    autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                    className={inputCls}
+                  />
+                )}
+                <button type="submit" disabled={busy} className={`${btn('primary', 'lg')} w-full disabled:opacity-50`}>
+                  {busy ? 'Un momento…' : cta}
                 </button>
               </form>
               {err && <p className="mt-3 text-center text-xs text-rose">{err}</p>}
+
+              <div className="mt-5 space-y-1.5 text-center text-xs text-fog">
+                {mode === 'signin' && (
+                  <>
+                    <button onClick={() => switchMode('forgot')} className="block w-full hover:text-snow">
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                    <button onClick={() => switchMode('signup')} className="block w-full hover:text-snow">
+                      ¿Nuevo en Coffee Me? <span className="font-semibold text-lime">Crea tu cuenta</span>
+                    </button>
+                  </>
+                )}
+                {mode === 'signup' && (
+                  <button onClick={() => switchMode('signin')} className="block w-full hover:text-snow">
+                    ¿Ya tienes cuenta? <span className="font-semibold text-lime">Entra</span>
+                  </button>
+                )}
+                {mode === 'forgot' && (
+                  <button onClick={() => switchMode('signin')} className="block w-full hover:text-snow">
+                    Volver a entrar
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -80,6 +158,15 @@ export default function Login() {
       </div>
     </div>
   )
+}
+
+function traducir(msg: string): string {
+  const m = msg.toLowerCase()
+  if (m.includes('invalid login credentials')) return 'Email o contraseña incorrectos.'
+  if (m.includes('email not confirmed')) return 'Confirma tu email antes de entrar (revisa tu correo).'
+  if (m.includes('user already registered')) return 'Ese email ya tiene cuenta. Entra o recupera la contraseña.'
+  if (m.includes('password')) return 'La contraseña debe tener al menos 6 caracteres.'
+  return msg
 }
 
 function GoogleIcon() {
