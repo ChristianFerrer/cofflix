@@ -1,6 +1,6 @@
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate, Link, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { LogOut, ShieldCheck, Store } from 'lucide-react'
+import { LogOut, ShieldCheck, Store, Building2, ChartNoAxesColumn, Receipt } from 'lucide-react'
 import { Logo } from '../components/ui'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -22,9 +22,18 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 export function AppLayout({ children }: { children: ReactNode }) {
   const { session, profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const loc = useLocation()
   const roleLabel =
     profile?.role === 'superadmin' ? 'Administración' : profile?.role === 'staff' ? 'Equipo' : 'Café'
   const RoleIcon = profile?.role === 'superadmin' ? ShieldCheck : Store
+
+  const tabs =
+    profile?.role === 'superadmin'
+      ? [{ to: '/app/admin', label: 'Cafeterías', icon: Building2 }]
+      : [
+          { to: '/app/cafe', label: 'Panel', icon: ChartNoAxesColumn },
+          { to: '/app/caja', label: 'Caja', icon: Receipt },
+        ]
 
   async function logout() {
     await signOut()
@@ -42,12 +51,28 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-mist md:inline">{session?.user.email}</span>
+            <nav className="flex items-center gap-1 rounded-full border border-line bg-surface p-1">
+              {tabs.map((t) => {
+                const active = loc.pathname === t.to
+                const Icon = t.icon
+                return (
+                  <Link
+                    key={t.to}
+                    to={t.to}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${active ? 'bg-lime text-ink' : 'text-fog hover:bg-surface2 hover:text-snow'}`}
+                  >
+                    <Icon size={15} strokeWidth={2.2} />
+                    <span className="hidden sm:inline">{t.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+            <span className="hidden text-sm text-mist lg:inline">{session?.user.email}</span>
             <button
               onClick={logout}
               className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-fog transition hover:text-snow"
             >
-              <LogOut size={14} /> Salir
+              <LogOut size={14} /> <span className="hidden sm:inline">Salir</span>
             </button>
           </div>
         </div>

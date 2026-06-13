@@ -17,6 +17,7 @@ import ResetPassword from './pages/ResetPassword'
 import AppHome from './pages/app/AppHome'
 import AdminConsole from './pages/app/AdminConsole'
 import CafeDashboard from './pages/app/CafeDashboard'
+import CafeCaja from './pages/app/CafeCaja'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -41,6 +42,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/app" element={<RequireAuth><AppHome /></RequireAuth>} />
             <Route path="/app/admin" element={<RequireAuth><AdminConsole /></RequireAuth>} />
             <Route path="/app/cafe" element={<RequireAuth><CafeDashboard /></RequireAuth>} />
+            <Route path="/app/caja" element={<RequireAuth><CafeCaja /></RequireAuth>} />
           </Routes>
         </HashRouter>
       </StoreProvider>
