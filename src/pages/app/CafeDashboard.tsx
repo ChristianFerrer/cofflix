@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { BadgeEuro, Users, Package, Target, UserPlus, ArrowLeft, Coffee } from 'lucide-react'
+import { BadgeEuro, Users, Package, Target, UserPlus, ArrowLeft, Coffee, Receipt } from 'lucide-react'
 import { AppLayout, Loader } from '../../app/AppLayout'
-import { Stat, eur } from '../../components/ui'
+import { Stat, btn, eur } from '../../components/ui'
 import { useAuth } from '../../auth/AuthProvider'
 import { supabase, type Cafe } from '../../lib/supabase'
 
@@ -105,6 +105,9 @@ export default function CafeDashboard() {
             Club a {eur(cafe.club_price)}/mes · tope {cafe.cap_per_day}/día · plan {cafe.saas_tier}
           </p>
         </div>
+        <Link to={`/app/caja?id=${cafeId}`} className={btn('primary')}>
+          <Receipt size={16} strokeWidth={2.2} /> Abrir caja
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

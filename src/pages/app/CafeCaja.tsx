@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import {
-  Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight, UserPlus, Plus, Users,
+  Search, Check, X, Coffee, MousePointerClick, Phone, Clock, Package, ChevronRight, UserPlus, Plus, Users, ArrowLeft,
 } from 'lucide-react'
 import { AppLayout, Loader } from '../../app/AppLayout'
 import { eur, productIcon, btn } from '../../components/ui'
@@ -27,7 +28,9 @@ function todayStartISO() {
 
 export default function CafeCaja() {
   const { profile } = useAuth()
-  const cafeId = profile?.cafe_id ?? null
+  const [params] = useSearchParams()
+  const isSuper = profile?.role === 'superadmin'
+  const cafeId = (isSuper ? params.get('id') : null) ?? profile?.cafe_id ?? null
 
   const [cafe, setCafe] = useState<Cafe | null>(null)
   const [members, setMembers] = useState<Member[]>([])
@@ -71,7 +74,18 @@ export default function CafeCaja() {
   }, [members, query])
 
   if (loading) return <Loader />
-  if (!cafe) return <AppLayout><div className="rounded-2xl border border-line bg-surface p-8 text-center text-fog">No tienes una cafetería asignada.</div></AppLayout>
+  if (!cafe)
+    return (
+      <AppLayout>
+        <div className="rounded-2xl border border-line bg-surface p-8 text-center text-fog">
+          {isSuper ? (
+            <>Elige una cafetería en <Link to="/app/admin" className="font-semibold text-lime">Cafeterías</Link> y abre su caja.</>
+          ) : (
+            'No tienes una cafetería asignada.'
+          )}
+        </div>
+      </AppLayout>
+    )
 
   const cap = cafe.cap_per_day
   const selected = members.find((m) => m.id === selectedId) ?? null
@@ -114,6 +128,11 @@ export default function CafeCaja() {
   return (
     <AppLayout>
       <div className="mb-5">
+        {isSuper && (
+          <Link to={`/app/cafe?id=${cafeId}`} className="mb-2 flex items-center gap-1.5 text-xs text-fog transition hover:text-snow">
+            <ArrowLeft size={13} /> Volver al panel del café
+          </Link>
+        )}
         <h1 className="font-display text-2xl font-semibold text-snow">Caja · {cafe.name}</h1>
         <p className="mt-1 text-sm text-fog">Verifica al socio, aplica el tope diario y gestiona los pedidos para recoger.</p>
       </div>
