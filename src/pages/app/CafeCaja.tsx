@@ -64,6 +64,17 @@ export default function CafeCaja() {
 
   useEffect(() => { void fetchAll() }, [fetchAll])
 
+  // Realtime: la caja se actualiza sola cuando entran pedidos o redenciones
+  useEffect(() => {
+    if (!cafeId) return
+    const ch = supabase
+      .channel(`caja-${cafeId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `cafe_id=eq.${cafeId}` }, () => void fetchAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'redemptions', filter: `cafe_id=eq.${cafeId}` }, () => void fetchAll())
+      .subscribe()
+    return () => { void supabase.removeChannel(ch) }
+  }, [cafeId, fetchAll])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     const qd = q.replace(/\D/g, '')
